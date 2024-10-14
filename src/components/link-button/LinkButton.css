@@ -1,0 +1,18 @@
+.link-button {
+    margin: 0;
+    padding: 4px 8px;
+
+    font-size: 20px;
+    text-decoration: none;
+
+    background-color: #11296B;
+    border: 2px outset #FFDB57;
+    color: #EDEDED;
+
+    border-radius: 16px;
+}
+
+.link-button:hover, .link-button:active, .link-button:focus {
+    background-color: #00509D;
+    cursor: pointer;
+}

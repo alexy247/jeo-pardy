@@ -48,3 +48,6 @@ export default tseslint.config({
   },
 })
 ```
+
+h2. Links
+- [Coolors|https://coolors.co/palette/11296b-00509d-ededed-ffdb57-ffcb05]
