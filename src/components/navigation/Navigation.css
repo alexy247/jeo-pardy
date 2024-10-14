@@ -1,0 +1,16 @@
+.li {
+    display: inline-block;
+}
+
+.li +.li {
+    margin-left: 8px;
+}
+
+.li_link {
+    color: #EDEDED;
+    text-decoration: none;
+}
+
+.li_link:active, .li_link:focus, .li_link:hover {
+    color: #FFDB57;
+}
