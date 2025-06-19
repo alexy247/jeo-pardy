@@ -1,4 +1,4 @@
-const categories = ['Мемы', 'Угадай фильм', 'Огород'];
+import { categories } from "../data/data";
 
 function Categories() {
     return (
