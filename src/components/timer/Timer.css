@@ -1,0 +1,28 @@
+.timer {
+    margin: 0 auto;
+    padding: 2px;
+
+    width: 300px;
+    height: 20px;
+
+    border: 2px solid #EDEDED;
+}
+
+.timer-line {
+    width: 0%;
+    height: 100%;
+
+    background: #EDEDED;
+
+    animation: timer ease-in;
+}
+
+@keyframes timer {
+    0% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0%;
+    }
+}

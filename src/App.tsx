@@ -4,9 +4,11 @@ import Main from './pages/main';
 import Board from './pages/board';
 import Categories from './pages/categories';
 import Layout from './components/layout/Layout';
+import EmptyPage from './components/empty-page/EmptyPage';
+import Question from './pages/question';
+import Answer from './pages/answer';
 
 import './App.css';
-import EmptyPage from './components/empty-page/EmptyPage';
 
 function App(): JSX.Element {
   return (
@@ -18,8 +20,15 @@ function App(): JSX.Element {
             <Route index element={<Categories />} />
           </Route>
           <Route path="board">
-            <Route index element={<Board />} />
-            <Route path=":id" element={<Board />} />
+            <Route path=":id">
+              <Route index element={<Board />} />
+              <Route path="question">
+                <Route path=":questionId" element={<Question />}/>
+              </Route>
+              <Route path="answer">
+                <Route path=":anwserId" element={<Answer />}/>
+              </Route>
+            </Route>
             <Route path="secret" element={<div>Пример для роутинга</div>} />
           </Route>
         </Route>
