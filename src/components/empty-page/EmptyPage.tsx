@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
 import { Fragment } from "react/jsx-runtime";
-import LinkButton from "../link-button/LinkButton";
+import LinkButton from "../actions/LinkButton";
 
 function EmptyPage() {
     return (

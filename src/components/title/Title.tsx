@@ -1,18 +1,23 @@
+import LoginButton from '../login-button/LoginButton';
 import PlayButton from '../play-button/PlayButton';
+import CenteringBlock from '../ui/centering-block/CenteringBlock';
 
 import './Title.css';
 
 function Title() {
     return (
-        <div className="title">
-            <div className="title_first-line">
+        <CenteringBlock children={
+            <>
+                <div className="title_first-line">
                     Своя
                 </div>
                 <div className="title_second-line">
                     игра
                 </div>
                 <PlayButton />
-        </div>
+                <LoginButton />
+            </>
+        }/>
     );
 }
 

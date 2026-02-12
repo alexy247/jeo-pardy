@@ -1,6 +1,4 @@
-import LinkButton from '../link-button/LinkButton';
-
-import './PlayButton.css';
+import LinkButton from '../actions/LinkButton';
 
 function PlayButton() {
     return (
