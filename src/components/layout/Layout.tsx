@@ -1,4 +1,4 @@
-import { Fragment, ReactNode } from 'react';
+import { Fragment } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navigation from '../navigation/Navigation';
 

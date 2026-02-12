@@ -51,3 +51,11 @@ export default tseslint.config({
 
 h2. Links
 - [Coolors|https://coolors.co/palette/11296b-00509d-ededed-ffdb57-ffcb05]
+
+// TODO: Connect to MongoDB
+
+Ошибка подключения монго ДБ
+lib mongosh                           
+Current Mongosh Log ID:	69655c31554a1b4f51c92d42
+Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.10
+MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017
