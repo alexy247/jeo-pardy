@@ -1,10 +1,10 @@
 import { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGame } from "../context/GameContext";
+
 import ButtonType from "../components/actions/ButtonType";
 import LinkButton from "../components/actions/LinkButton";
 import CenteringBlock from "../components/ui/centering-block/CenteringBlock";
-
-import { useGame } from "../context/GameContext";
 
 const EMAIL_INPUT_ID = 'jeo-mail';
 const PASS_INPUT_ID = 'jeo-pass';
