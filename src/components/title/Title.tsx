@@ -1,5 +1,6 @@
 import LoginButton from '../login-button/LoginButton';
 import PlayButton from '../play-button/PlayButton';
+import ButtonsContainer from '../ui/buttons-container/ButtonsContainer';
 import CenteringBlock from '../ui/centering-block/CenteringBlock';
 
 import './Title.css';
@@ -14,8 +15,10 @@ function Title() {
                 <div className="title_second-line">
                     игра
                 </div>
-                <PlayButton />
-                <LoginButton />
+                <ButtonsContainer>
+                    <PlayButton />
+                    <LoginButton />
+                </ButtonsContainer>
             </>
         }/>
     );

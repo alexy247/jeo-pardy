@@ -1,0 +1,18 @@
+@keyframes slideAnimation {
+  0% { transform: translateY(1200px); }
+  100% { transform: translateY(-1200px); }
+}
+
+.sliding {
+    animation: slideAnimation 15s 1 alternate;
+}
+
+.sliding-frame { 
+    overflow: hidden;
+    height: 100%;
+}
+
+.sliding-area { 
+    overflow: scroll;
+    height: 600px;
+}

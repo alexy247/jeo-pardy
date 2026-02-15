@@ -1,8 +1,8 @@
 import LinkButton from '../actions/LinkButton';
 
-function LoginButton() {
+function LoginButton({ className }: any ) {
     return (
-        <LinkButton to={"/login"} label="Войти" />
+        <LinkButton to={"/login"} label="Войти" className={className} />
     );
 }
 

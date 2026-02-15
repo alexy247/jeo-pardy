@@ -5,6 +5,10 @@ import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 import { useParams } from "react-router-dom";
 
 import LinkButton from "../components/actions/LinkButton";
+import SlidingBlock from "../components/ui/sliding-block/SlidingBlock";
+import UlList from "../components/ui/ul-list/UlList";
+import ListItem from "../components/ui/ul-list/list-item/ListItem";
+import CenteringHorizontal from "../components/ui/centering-horizontal-block/CenteringHorizontal";
 
 function Categories() {
     const params = useParams();
@@ -28,24 +32,26 @@ function Categories() {
     if (isLoading) return <div>Loading categories...</div>;
     
     return (
-        <div>
+        <CenteringHorizontal>
             <h1>Список категорий:</h1>
-            <ul>
-                {currentGameRounds && currentGameRounds.map((round) => (
-                    <li key={round.roundName}>
-                      {round.roundName}
-                      <ul>
-                        {round.categories.map((category) => (
-                            <li key={category.id}>
-                                {category.title}
-                            </li>
-                        ))}
-                      </ul>
-                    </li>
-                ))}
-            </ul>
+            <SlidingBlock>
+                <UlList>
+                    {currentGameRounds && currentGameRounds.map((round) => (
+                        <ListItem key={round.roundName}>
+                            {round.roundName}
+                            <UlList>
+                                {round.categories.map((category) => (
+                                    <ListItem key={category.id}>
+                                        {category.title}
+                                    </ListItem>
+                                ))}
+                            </UlList>
+                        </ListItem>
+                    ))}
+                </UlList>
+            </SlidingBlock>
             <LinkButton to={'/board'} label="К таблице"/>
-        </div>
+        </CenteringHorizontal>
     );
 }
 
