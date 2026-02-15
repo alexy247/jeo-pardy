@@ -5,6 +5,8 @@ import { useGame } from "../context/GameContext";
 import ButtonType from "../components/actions/ButtonType";
 import LinkButton from "../components/actions/LinkButton";
 import CenteringBlock from "../components/ui/centering-block/CenteringBlock";
+import ButtonsContainer from "../components/ui/buttons-container/ButtonsContainer";
+import InputField from "../components/ui/input-field/InputField";
 
 const EMAIL_INPUT_ID = 'jeo-mail';
 const PASS_INPUT_ID = 'jeo-pass';
@@ -38,22 +40,18 @@ function Login() {
         <CenteringBlock>
             <form onSubmit={onSubmit}>
                 <h1>Авторизация</h1>
-                <div>
-                    <label>
-                        Почта
-                        <input type="text" id={EMAIL_INPUT_ID}></input>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Пароль
-                        <input type="password" id={PASS_INPUT_ID}></input>
-                    </label>
-                </div>
-                <div>
+                <InputField id={EMAIL_INPUT_ID}
+                            type="text"
+                            label="Почта"
+                />
+                <InputField id={PASS_INPUT_ID}
+                            type="password"
+                            label="Пароль"
+                />
+                <ButtonsContainer>
                     <ButtonType label="Войти" type="submit"/>
                     <LinkButton label="Регистрация" to="/registration"/>
-                </div>
+                </ButtonsContainer>
             </form>
         </CenteringBlock>
     );

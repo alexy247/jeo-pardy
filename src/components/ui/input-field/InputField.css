@@ -1,0 +1,23 @@
+.row {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    width: 70%;
+    margin: 0 auto 10px auto;
+}
+
+.label {
+    color: #FFDB57;
+}
+
+.input {
+    padding: 4px 8px;
+    font-size: 20px;
+    text-decoration: none;
+    background-color: #11296B;
+    border: 2px outset #FFDB57;
+    color: #EDEDED;
+    border-radius: 16px;
+    width: 150px;
+}
+
