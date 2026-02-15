@@ -1,9 +1,10 @@
 import Title from "../components/title/Title";
 
-function Main(): JSX.Element {
+
+export const Main = () => {
     return (
         <Title/>
     );
-}
+};
 
 export default Main;
