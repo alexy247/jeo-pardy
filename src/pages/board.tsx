@@ -1,45 +1,70 @@
+import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { scores, categories } from "../data/data";
+import { useCancellableFetch } from "../hoocks/useCancellableFetch";
+import { useGame } from "../context/GameContext";
+import { useGameStore } from "../store/useGameStore";
 
-import TableData from "../components/table/table-data/TableData";
+import TableLinkData from "../components/table/table-link-data/TableLinkData";
 import TableHeader from "../components/table/table-header/TableHeader";
 import TableRow from "../components/table/table-row/TableRow";
 import Table from "../components/table/table/Table";
 import HeaderFirst from "../components/header/header-first/HeaderFirst";
-
-// import { useGame } from "../context/GameContext";
+import { CategoryName, IBoardItem } from "../data/types";
 
 function Board() {
     const params = useParams();
-
-    // const { 
-    // user, 
-    // loadQuestions, 
-    // updateProgress, 
-    // saveUserAnswer, 
-    // createGameSession 
-//   } = useGame();
+    const { loadCurrentRound, isLoading, currentRound, currentGameSession, setGameSession, setRound } = useGameStore();
+    const { user } = useGame();
+    const abortControllerRef = useRef<AbortController>();
   
-//   const [questions, setQuestions] = useState([])
-//   const [currentQuestion, setCurrentQuestion] = useState(0)
-//   const [score, setScore] = useState(0)
-//   const [sessionId, setSessionId] = useState(null)
-//   const [loading, setLoading] = useState(true)
+    const [roundName, setRoundName] = useState<string>("");
+    const [categories, setCategories] = useState<string[]>([])
+    const [rows, setBoardRows] = useState<Map<CategoryName, IBoardItem[]>>(new Map())
+
+    if (params.sessionId && params.sessionId != currentGameSession) {
+        console.log('Сессия в сторе отличается от сессии в ссылке');
+        setGameSession(params.sessionId);
+    }
+
+    if (Number(params.roundOrder) != currentRound) {
+        console.log('Раунд в сторе отличается от раунда в ссылке');
+        setRound(Number(params.roundOrder));
+    }
+
+    useCancellableFetch(async (signal) => {
+        abortControllerRef.current = new AbortController();
+        if (user) {
+            loadCurrentRound(user, signal)
+                // @ts-ignore
+                .then((data) => {
+                    if (data) {
+                        setRoundName(data.roundName);
+                        setCategories(data.categoriesNames);
+                        setBoardRows(data.rows);
+                    }
+                })
+                .catch(() => {
+                    // TODO: добавить страницу с ошибкой
+                });
+        }
+    }, [user, currentGameSession, currentRound]);
+
+    if (isLoading) return <div>Loading board...</div>;
 
     return (<>
             <HeaderFirst>
-                Таблица с игрой {params.id}
+                Таблица с игрой - {roundName}
             </HeaderFirst>
             <Table>
                 {categories.map((category) => (
-                        <TableRow>
+                    <TableRow key={category}>
                         <TableHeader>
                             {category}
                         </TableHeader>
-                        {scores.map((score) => (
-                            <TableData>
-                                {score}
-                            </TableData>
+                        {rows.get(category)!.map((boardItem) => (
+                            <TableLinkData key={boardItem.questionId} href={`question/${boardItem.questionId}`}>
+                                {boardItem.price}
+                            </TableLinkData>
                         ))}
                     </TableRow>
                 ))}

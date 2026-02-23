@@ -5,15 +5,31 @@ export interface IPack {
     created: Date,
 }
 
+export type SessionId = string;
+
+export type CategoryName = string;
+
 export interface ICategory {
     id: string,
-    title: string,
+    title: CategoryName,
 }
 
-export type SessionId = string;
+export type RoundName = string;
 
 export interface IRound {
     roundOrder: number,
-    roundName: string,
+    roundName: RoundName,
     categories: ICategory[],
+}
+
+export interface IBoardItem {
+    questionId: string;
+    finished: boolean;
+    price: number;
+}
+
+export interface IBoardRound {
+    roundName: RoundName;
+    categoriesNames: CategoryName[];
+    rows: Map<CategoryName, IBoardItem[]>;
 }

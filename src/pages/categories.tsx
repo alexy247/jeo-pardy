@@ -13,7 +13,7 @@ import CenteringHorizontal from "../components/ui/centering-horizontal-block/Cen
 function Categories() {
     const params = useParams();
     const [currentGameRounds, setCurrentGameRounds] = useState<IRound[]>();
-    const { loadRounds, isLoading } = useGameStore();
+    const { loadRounds, isLoading, currentGameSession } = useGameStore();
     const abortControllerRef = useRef<AbortController>();
 
     useCancellableFetch(async (signal) => {
@@ -50,7 +50,7 @@ function Categories() {
                     ))}
                 </UlList>
             </SlidingBlock>
-            <LinkButton to={'/board'} label="К таблице"/>
+            <LinkButton to={`/board/${currentGameSession}/${0}`} label="К таблице"/>
         </CenteringHorizontal>
     );
 }

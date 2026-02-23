@@ -45,13 +45,15 @@ function App(): JSX.Element {
               </Route>
             </Route>
             <Route path="board">
-              <Route path=":id">
-                <Route index element={<Board />} />
-                <Route path="question">
-                  <Route path=":questionId" element={<Question />}/>
-                </Route>
-                <Route path="answer">
-                  <Route path=":anwserId" element={<Answer />}/>
+               <Route path=":sessionId">
+                <Route path=":roundOrder">
+                  <Route index element={<Board />} />
+                  <Route path="question">
+                    <Route path=":questionId" element={<Question />}/>
+                  </Route>
+                  <Route path="answer">
+                    <Route path=":anwserId" element={<Answer />}/>
+                  </Route>
                 </Route>
               </Route>
               <Route path="secret" element={<div>Пример для роутинга</div>} />
