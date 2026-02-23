@@ -1,15 +1,18 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
-import { IPack, IRound, SessionId } from '../data/types';
+import { IBoardRound, IPack, IRound, SessionId } from '../data/types';
 import { convertSQLResultToPacks } from '../data/packsConverter';
 import { convertSQLResultToRounds } from '../data/roundsConverter';
 import { convertSQLResultToSessionId } from '../data/sessionConverter';
+import { convertSQLResultToBoardRound } from '../data/boardRoundConverter';
 
 interface GameStore {
     packs: IPack[];
     currentGameSession: SessionId;
-    currentRounds: IRound[];
+    currentSessionRounds: IRound[];
+    currentRound: number;
+    boardRound: IBoardRound;
     isLoading: boolean;
     error: string | null;
 
@@ -17,11 +20,16 @@ interface GameStore {
 
     loadPacks: (signal?: AbortSignal) => Promise<IPack[] | undefined>;
     loadRounds: (sessionId: SessionId, signal?: AbortSignal) => Promise<IRound[] | undefined>;
+    loadCurrentRound: (user: User, signal?: AbortSignal) => Promise<IBoardRound | undefined>;
 
     createSession: (user: User, packId: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
 
     abortRequest: (key: string) => void;
     abortAllRequests: () => void;
+
+    nextRound: () => void;
+    setRound: (value: number) => void;
+    setGameSession: (value: string) => void;
 
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
@@ -31,7 +39,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Начальное состояние
     packs: [],
     currentGameSession: '',
-    currentRounds: [],
+    currentSessionRounds: [],
+    currentRound: 0,
+    boardRound: { roundName: "", categoriesNames: [], rows: new Map()},
     isLoading: false,
     error: null,
 
@@ -105,6 +115,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
 
     loadRounds: async (sessionId, externalSignal) => {
+         if (get().currentGameSession != sessionId) {
+                set({ currentGameSession: sessionId });
+            }
+
         const requestKey = `loadRounds:${sessionId}`;
         // Отменяем предыдущий запрос
         get().abortRequest(requestKey);
@@ -160,10 +174,66 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (signal.aborted) return;
 
             const currentCategoriesConverted = convertSQLResultToRounds(data[0]);
-
-            set({ currentRounds: currentCategoriesConverted || [] });
+            set({ currentSessionRounds: currentCategoriesConverted || [] });
 
             return currentCategoriesConverted;
+        } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') {
+                console.log('Request cancelled:', requestKey);
+                return;
+            }
+            set({ error: error instanceof Error ? error.message : 'Failed to fetch packs' });
+        } finally {
+            get().activeRequests.delete(requestKey);
+            set({ isLoading: false });
+        }
+    },
+
+    loadCurrentRound: async (user, externalSignal) => {
+        const currentRound = get().currentRound;
+        const currentGameSession = get().currentGameSession;
+
+        const requestKey = `loadCurrentRound:${currentRound}:${currentGameSession}`;
+        // Отменяем предыдущий запрос
+        get().abortRequest(requestKey);
+
+        const abortController = new AbortController();
+        get().activeRequests.set(requestKey, abortController);
+
+        const signal = externalSignal
+            ? AbortSignal.any([abortController.signal, externalSignal])
+            : abortController.signal;
+        set({ isLoading: true, error: null });
+        try {
+            if (signal.aborted) {
+                throw new DOMException('Aborted', 'AbortError');
+            }
+
+            if (!user) {
+                return Promise.reject('No user');
+            }
+
+            if (!currentGameSession) {
+                return Promise.reject('No currentGameSession');
+            }
+            let query = supabase.rpc('load_current_round', { sessionid: currentGameSession , userid: user.id, round_order: currentRound });
+
+            const { data, error } = await query.abortSignal(signal);
+            
+
+            if (error) {
+                return Promise.reject(`error ${error.message}`);
+            };
+
+            console.log(data);
+
+            if (signal.aborted) return;
+
+            const boardRoundConverted = convertSQLResultToBoardRound(data);
+
+            set({ boardRound: boardRoundConverted || [] });
+
+            return boardRoundConverted;
         } catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') {
                 console.log('Request cancelled:', requestKey);
@@ -228,6 +298,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
             set({ isLoading: false });
         }
     },
+
+    nextRound: () => { set({currentRound: get().currentRound + 1}) },
+
+    setRound: (value: number) => { set({currentRound: value}) },
+    setGameSession: (value: string) => { set({currentGameSession: value}) },
 
     setLoading: (loading) => set({ isLoading: loading }),
     setError: (error) => set({ error })
