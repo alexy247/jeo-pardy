@@ -3,6 +3,7 @@ import { useGameStore } from "../store/useGameStore";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 
 import LinkButton from "../components/actions/LinkButton";
+import SpaceBetween from "../components/ui/space-between/SpaceBetween";
 
 export const Packs = () => {
     const { packs, isLoading, loadPacks } = useGameStore();
@@ -25,7 +26,12 @@ export const Packs = () => {
 
     return (
         <div>
-            <h1>Допустимые паки</h1>
+            <SpaceBetween>
+                <>
+                    <h1>Допустимые паки</h1>
+                    <LinkButton to={'createPack'} label="Создать свой"/>
+                </>
+            </SpaceBetween>
             <ul>
                 {packs && packs.map((item) => (
                     <li key={item.id}>

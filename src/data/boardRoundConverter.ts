@@ -1,6 +1,6 @@
-import { CategoryName, IBoardItem, IBoardRound } from "./types";
+import { CategoryName, IBoardItem, IBoardRound, QuestionStatus } from "./types";
 
-export const convertSQLResultToBoardRound = (response: Array<{round_name: string, category_name: string, question_id: string, question_price: number, round_order_num: number, finished: boolean}>): IBoardRound => {
+export const convertSQLResultToBoardRound = (response: Array<{round_name: string, category_name: string, question_id: string, question_price: number, round_order_num: number, question_status: QuestionStatus}>): IBoardRound => {
     let roundName: string = "";
     let categoriesNames: CategoryName[] = [];
     let rows: Map<CategoryName, IBoardItem[]> = new Map();
@@ -20,14 +20,14 @@ export const convertSQLResultToBoardRound = (response: Array<{round_name: string
             const currentRow = rows.get(item.category_name)!;
             currentRow.push({
                     questionId: item.question_id,
-                    finished: item.finished,
+                    questionStatus: item.question_status,
                     price: item.question_price
             });
             rows.set(item.category_name, currentRow);
         } else {
             rows.set(item.category_name, [{
                 questionId: item.question_id,
-                    finished: item.finished,
+                    questionStatus: item.question_status,
                     price: item.question_price
             }]);
         }

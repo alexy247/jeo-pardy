@@ -1,31 +1,36 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
-import { IBoardRound, IPack, IRound, SessionId } from '../data/types';
+import { IBoardRound, IPack, IQuestion, IRound, SessionId } from '../data/types';
 import { convertSQLResultToPacks } from '../data/packsConverter';
 import { convertSQLResultToRounds } from '../data/roundsConverter';
 import { convertSQLResultToSessionId } from '../data/sessionConverter';
 import { convertSQLResultToBoardRound } from '../data/boardRoundConverter';
+import { convertSQLResultToQuestion } from '../data/questionConverter';
 
 interface GameStore {
     packs: IPack[];
     currentGameSession: SessionId;
     currentSessionRounds: IRound[];
     currentRound: number;
-    boardRound: IBoardRound;
+    boardRound?: IBoardRound;
+    currentQuestion?: IQuestion;
     isLoading: boolean;
     error: string | null;
 
     activeRequests: Map<string, AbortController>;
 
     loadPacks: (signal?: AbortSignal) => Promise<IPack[] | undefined>;
-    loadRounds: (sessionId: SessionId, signal?: AbortSignal) => Promise<IRound[] | undefined>;
-    loadCurrentRound: (user: User, signal?: AbortSignal) => Promise<IBoardRound | undefined>;
+    loadRounds: (signal?: AbortSignal) => Promise<IRound[] | undefined>;
+    loadCurrentRound: (signal?: AbortSignal) => Promise<IBoardRound | undefined>;
+    loadCurrentQuestion: (questionId: string, signal?: AbortSignal) => Promise<IQuestion | undefined>;
 
     createSession: (user: User, packId: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
 
     abortRequest: (key: string) => void;
     abortAllRequests: () => void;
+
+    loadSupabaseData: <T, K>(params: ILoadSupabaseDataParams<T, K>) => Promise<K | undefined>;
 
     nextRound: () => void;
     setRound: (value: number) => void;
@@ -35,13 +40,20 @@ interface GameStore {
     setError: (error: string | null) => void;
 }
 
+interface ILoadSupabaseDataParams<T, K> {
+    requestKey: string,
+    functionName: string,
+    argsObj?: object,
+    callBackFunc: (data: T) => K,
+    externalSignal?: AbortSignal,
+}
+
 export const useGameStore = create<GameStore>((set, get) => ({
     // Начальное состояние
     packs: [],
     currentGameSession: '',
     currentSessionRounds: [],
     currentRound: 0,
-    boardRound: { roundName: "", categoriesNames: [], rows: new Map()},
     isLoading: false,
     error: null,
 
@@ -61,238 +73,121 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
 
     loadPacks: async (externalSignal) => {
-        const requestKey = 'loadPacks:public';
-        // Отменяем предыдущий запрос
-        get().abortRequest(requestKey);
+        return get().loadSupabaseData<any, IPack[]>({
+            requestKey: 'loadPacks:public',
+            functionName: 'load_enabled_packs',
+            callBackFunc: (data) => {
+                const packsConverted = convertSQLResultToPacks(data);
+                set({ packs: packsConverted || [] });
 
-        const abortController = new AbortController();
-        get().activeRequests.set(requestKey, abortController);
-
-        const signal = externalSignal
-            ? AbortSignal.any([abortController.signal, externalSignal])
-            : abortController.signal;
-
-        set({ isLoading: true, error: null });
-        try {
-            if (signal.aborted) {
-                throw new DOMException('Aborted', 'AbortError');
-            }
-
-            let query = supabase
-                .from('packs')
-                .select(
-                    `
-                    id,
-                    name,
-                    created_at,
-                    ...users!inner(
-                    username
-                    )
-                    `,
-                );
-
-            const { data, error } = await query.abortSignal(signal);
-
-            if (error) throw error;
-
-            if (signal.aborted) return;
-
-            const packsConverted = convertSQLResultToPacks(data);
-
-            set({ packs: packsConverted || [] });
-
-            return packsConverted;
-        } catch (error) {
-            if (error instanceof DOMException && error.name === 'AbortError') {
-                console.log('Request cancelled:', requestKey);
-                return;
-            }
-            set({ error: error instanceof Error ? error.message : 'Failed to fetch packs' });
-        } finally {
-            get().activeRequests.delete(requestKey);
-            set({ isLoading: false });
-        }
+                return packsConverted;
+            },
+            externalSignal: externalSignal,
+        });
     },
 
-    loadRounds: async (sessionId, externalSignal) => {
-         if (get().currentGameSession != sessionId) {
-                set({ currentGameSession: sessionId });
-            }
+    loadRounds: async (externalSignal) => {
+        const currentGameSession = get().currentGameSession;
 
-        const requestKey = `loadRounds:${sessionId}`;
-        // Отменяем предыдущий запрос
-        get().abortRequest(requestKey);
+        return get().loadSupabaseData<any, IRound[]>({
+            requestKey: `loadRounds:${currentGameSession}`,
+            functionName: 'load_game_session_rounds',
+            argsObj:  { sessionid: currentGameSession },
+            callBackFunc: (data) => {
+                const currentCategoriesConverted = convertSQLResultToRounds(data);
+                set({ currentSessionRounds: currentCategoriesConverted || [] });
 
-        const abortController = new AbortController();
-        get().activeRequests.set(requestKey, abortController);
-
-        const signal = externalSignal
-            ? AbortSignal.any([abortController.signal, externalSignal])
-            : abortController.signal;
-
-        set({ isLoading: true, error: null });
-        try {
-            if (signal.aborted) {
-                throw new DOMException('Aborted', 'AbortError');
-            }
-
-            let query = supabase
-                .from('packs')
-                .select(
-                    `
-                ...game_sessions!inner(),
-                ...game_rounds_question!inner(
-                ...questions!inner(
-                    ...categories!inner(
-                    id,
-                    categories_name:name
-                    )
-                ),
-                ...game_rounds!inner(
-                    round_order_num,
-                    ...rounds!inner(
-                    rounds_name:name
-                    )
-                )
-                )
-                `,
-                )
-                .eq(
-                    'game_sessions.id',
-                    sessionId,
-                );
-            // TODO: Не работает
-            // .order('game_rounds(round_order_num)');
-
-
-            const { data, error } = await query.abortSignal(signal);
-
-            if (error) {
-                return Promise.reject(`error ${error.message}`);
-            };
-
-            if (signal.aborted) return;
-
-            const currentCategoriesConverted = convertSQLResultToRounds(data[0]);
-            set({ currentSessionRounds: currentCategoriesConverted || [] });
-
-            return currentCategoriesConverted;
-        } catch (error) {
-            if (error instanceof DOMException && error.name === 'AbortError') {
-                console.log('Request cancelled:', requestKey);
-                return;
-            }
-            set({ error: error instanceof Error ? error.message : 'Failed to fetch packs' });
-        } finally {
-            get().activeRequests.delete(requestKey);
-            set({ isLoading: false });
-        }
+                return currentCategoriesConverted;
+            },
+            externalSignal: externalSignal,
+        });
     },
 
-    loadCurrentRound: async (user, externalSignal) => {
+    loadCurrentRound: async (externalSignal) => {
         const currentRound = get().currentRound;
         const currentGameSession = get().currentGameSession;
 
-        const requestKey = `loadCurrentRound:${currentRound}:${currentGameSession}`;
-        // Отменяем предыдущий запрос
-        get().abortRequest(requestKey);
+        return get().loadSupabaseData<any, IBoardRound>({
+            requestKey: `loadCurrentRound:${currentRound}:${currentGameSession}`,
+            functionName: 'load_current_round',
+            argsObj:  { sessionid: currentGameSession , roundorder: currentRound },
+            callBackFunc: (data) => {
+                const boardRoundConverted = convertSQLResultToBoardRound(data);
 
-        const abortController = new AbortController();
-        get().activeRequests.set(requestKey, abortController);
+                set({ boardRound: boardRoundConverted || [] });
 
-        const signal = externalSignal
-            ? AbortSignal.any([abortController.signal, externalSignal])
-            : abortController.signal;
-        set({ isLoading: true, error: null });
-        try {
-            if (signal.aborted) {
-                throw new DOMException('Aborted', 'AbortError');
-            }
+                return boardRoundConverted;
+            },
+            externalSignal: externalSignal,
+        });
+    },
 
-            if (!user) {
-                return Promise.reject('No user');
-            }
+    loadCurrentQuestion: async (questionId, externalSignal) => {
+        const currentGameSession = get().currentGameSession;
 
-            if (!currentGameSession) {
-                return Promise.reject('No currentGameSession');
-            }
-            let query = supabase.rpc('load_current_round', { sessionid: currentGameSession , userid: user.id, round_order: currentRound });
+        return get().loadSupabaseData<any, IQuestion>({
+            requestKey: `loadCurrentQuestion:${questionId}:${currentGameSession}`,
+            functionName: 'load_current_question',
+            argsObj:  { sessionid: currentGameSession, questionid: questionId },
+            callBackFunc: (data) => {
+                const questionConverted = convertSQLResultToQuestion(data);
+                set({ currentQuestion: questionConverted || [] });
 
-            const { data, error } = await query.abortSignal(signal);
-            
-
-            if (error) {
-                return Promise.reject(`error ${error.message}`);
-            };
-
-            console.log(data);
-
-            if (signal.aborted) return;
-
-            const boardRoundConverted = convertSQLResultToBoardRound(data);
-
-            set({ boardRound: boardRoundConverted || [] });
-
-            return boardRoundConverted;
-        } catch (error) {
-            if (error instanceof DOMException && error.name === 'AbortError') {
-                console.log('Request cancelled:', requestKey);
-                return;
-            }
-            set({ error: error instanceof Error ? error.message : 'Failed to fetch packs' });
-        } finally {
-            get().activeRequests.delete(requestKey);
-            set({ isLoading: false });
-        }
+                return questionConverted;
+            },
+            externalSignal: externalSignal,
+        });
     },
 
     createSession: async (user, packId, externalSignal) => {
-        const requestKey = `createSession:${packId}`;
-        // Отменяем предыдущий запрос
-        get().abortRequest(requestKey);
+        return get().loadSupabaseData<any, SessionId>({
+            requestKey: `createSession:${packId}`,
+            functionName: 'create_session',
+            argsObj: { authorid: user.id , packid: packId},
+            callBackFunc: (data) => {
+                const currentGameSessionConverted = convertSQLResultToSessionId(data[0]);
+                set({ currentGameSession: currentGameSessionConverted });
+                
+                return currentGameSessionConverted;
+            },
+            externalSignal: externalSignal,
+        });
+    },
 
+    loadSupabaseData: async <T, K>({ requestKey, callBackFunc, functionName, argsObj, externalSignal}: ILoadSupabaseDataParams<T, K>): Promise<K | undefined> => {
+        get().abortRequest(requestKey);
+    
         const abortController = new AbortController();
         get().activeRequests.set(requestKey, abortController);
-
+    
         const signal = externalSignal
             ? AbortSignal.any([abortController.signal, externalSignal])
             : abortController.signal;
-
+    
         set({ isLoading: true, error: null });
+
         try {
             if (signal.aborted) {
                 throw new DOMException('Aborted', 'AbortError');
             }
-            if (!user) {
-                return Promise.reject('No user');
-            }
-            let query = supabase
-                .from('game_sessions')
-                .insert({
-                    user_id: user.id,
-                    pack_id: packId
-                })
-                .select()
-                .eq('user_id', user.id)
-                .eq('pack_id', packId);
-
+    
+            let query = supabase.rpc(functionName, argsObj);
+    
             const { data, error } = await query.abortSignal(signal);
-
+    
             if (error) {
                 return Promise.reject(`error ${error.message}`);
             };
-
+    
             if (signal.aborted) return;
-
-            const currentGameSessionConverted = convertSQLResultToSessionId(data[0]);
-            set({ currentGameSession: currentGameSessionConverted });
-            return currentGameSessionConverted;
+    
+            return callBackFunc(data);
         } catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') {
                 console.log('Request cancelled:', requestKey);
                 return;
             }
-            set({ error: error instanceof Error ? error.message : 'Failed to fetch packs' });
+            set({ error: error instanceof Error ? error.message : `Failed to fetch ${requestKey}` });
         } finally {
             get().activeRequests.delete(requestKey);
             set({ isLoading: false });

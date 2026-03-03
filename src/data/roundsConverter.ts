@@ -1,35 +1,35 @@
 import { ICategory, IRound } from "./types";
 
-export const convertSQLResultToRounds = (response: {categories_name: string[], id: string[], round_order_num: number[], rounds_name: string[]}): IRound[] => {
-    const {categories_name, id, round_order_num, rounds_name} = response;
+export const convertSQLResultToRounds = (response: Array<{category_id: string, category_name: string, round_name: string, round_order_num: number}>): IRound[] => {
+    let result: IRound[] = [];
     try {
-    let roundsResult: IRound[] = [];
-        round_order_num.forEach((item, index) => {
-            const sameRoundItem = roundsResult.find((resItem) => {
-                    return resItem.roundOrder == item;
+        response.forEach((item) => {
+            const sameRoundItem = result.find((resItem) => {
+                return resItem.roundOrder == item.round_order_num;
             });
+
             if (sameRoundItem) {
-                const newCategory: ICategory = {
-                    id: id[index],
-                    title: categories_name[index],
-                };
-                sameRoundItem.categories.push(newCategory);
-            } else {
-                const newCategory: ICategory = {
-                    id: id[index],
-                    title: categories_name[index],
-                };
-                const newRound: IRound = {
-                    roundOrder: item,
-                    roundName: rounds_name[index],
-                    categories: [newCategory],
-                };
-                roundsResult.push(newRound);
-            }
+                    const newCategory: ICategory = {
+                        id: item.category_id,
+                        title: item.category_name,
+                    };
+                    sameRoundItem.categories.push(newCategory);
+                } else {
+                    const newCategory: ICategory = {
+                        id: item.category_id,
+                        title: item.category_name,
+                    };
+                    const newRound: IRound = {
+                        roundOrder: item.round_order_num,
+                        roundName: item.round_name,
+                        categories: [newCategory],
+                    };
+                    result.push(newRound);
+                }
         });
-        return roundsResult.sort((a, b) => a.roundOrder - b.roundOrder);
-    } catch {
-        console.log(`convertSQLResultToCategories error`);
+        return result;
+    } catch (e) {
+        console.log(`convertSQLResultToCategories error: ${e}`);
         return [];
     }
 }

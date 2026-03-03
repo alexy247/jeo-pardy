@@ -13,21 +13,24 @@ import CenteringHorizontal from "../components/ui/centering-horizontal-block/Cen
 function Categories() {
     const params = useParams();
     const [currentGameRounds, setCurrentGameRounds] = useState<IRound[]>();
-    const { loadRounds, isLoading, currentGameSession } = useGameStore();
+    const { loadRounds, isLoading, currentGameSession, setGameSession } = useGameStore();
     const abortControllerRef = useRef<AbortController>();
+
+    if (params.sessionId && params.sessionId != currentGameSession) {
+        console.log('Сессия в сторе отличается от сессии в ссылке');
+        setGameSession(params.sessionId);
+    }
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
-        if (params.sessionId) {
-            loadRounds(params.sessionId, signal)
-                .then((data) => {
-                    setCurrentGameRounds(data);
-                })
-                .catch(() => {
-                    // TODO: добавить страницу с ошибкой
-                });
-            }
-    });
+        loadRounds(signal)
+            .then((data) => {
+                setCurrentGameRounds(data);
+            })
+            .catch(() => {
+                // TODO: добавить страницу с ошибкой
+            });
+    }, [currentGameSession]);
 
     if (isLoading) return <div>Loading categories...</div>;
     
