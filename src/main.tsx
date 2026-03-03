@@ -6,5 +6,5 @@ import './index.css'
 createRoot(document.querySelector('body')!).render(
   <StrictMode>
     <App />
-  </StrictMode>,
+  </StrictMode>
 )

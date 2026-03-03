@@ -1,0 +1,17 @@
+.audio-wrapper {
+    margin: 0 auto;
+    width: var(--media-content-width);
+    height: var(--media-content-height);
+    overflow: hidden;
+}
+
+.audio-icon {
+    margin: 0 auto;
+    display: block;
+    width: 200px;
+    height: 200px;
+}
+
+.audio {
+    width: 100%;
+}

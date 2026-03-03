@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
-import { useGame } from "../context/GameContext";
 import { useGameStore } from "../store/useGameStore";
 
 import TableLinkData from "../components/table/table-link-data/TableLinkData";
@@ -14,7 +13,6 @@ import { CategoryName, IBoardItem } from "../data/types";
 function Board() {
     const params = useParams();
     const { loadCurrentRound, isLoading, currentRound, currentGameSession, setGameSession, setRound } = useGameStore();
-    const { user } = useGame();
     const abortControllerRef = useRef<AbortController>();
   
     const [roundName, setRoundName] = useState<string>("");
@@ -33,8 +31,7 @@ function Board() {
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
-        if (user) {
-            loadCurrentRound(user, signal)
+        loadCurrentRound(signal)
                 // @ts-ignore
                 .then((data) => {
                     if (data) {
@@ -46,8 +43,7 @@ function Board() {
                 .catch(() => {
                     // TODO: добавить страницу с ошибкой
                 });
-        }
-    }, [user, currentGameSession, currentRound]);
+    }, [currentGameSession, currentRound]);
 
     if (isLoading) return <div>Loading board...</div>;
 

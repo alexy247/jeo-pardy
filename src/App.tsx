@@ -11,12 +11,11 @@ import Login from './pages/login';
 import Packs from './pages/packs';
 import Registration from './pages/registration';
 import CreateSession from './pages/createSession';
+import CreatePack from './pages/createPack';
 
 import GameProvider from './context/GameContext';
 
 import './App.css';
-
-
 
 function App(): JSX.Element {
   return (
@@ -29,6 +28,9 @@ function App(): JSX.Element {
               <Route index element={<Login />} />
             </Route>
             <Route path="packs">
+              <Route path="createPack">
+                <Route index element={<CreatePack />} />
+              </Route>
               <Route index element={<Packs />} />
             </Route>
             <Route path="registration">
@@ -52,6 +54,7 @@ function App(): JSX.Element {
                     <Route path=":questionId" element={<Question />}/>
                   </Route>
                   <Route path="answer">
+                    <Route index element={<Answer />} />
                     <Route path=":anwserId" element={<Answer />}/>
                   </Route>
                 </Route>
