@@ -7,10 +7,10 @@
 }
 
 .li_link {
-    color: #EDEDED;
+    color: var(--color-white);
     text-decoration: none;
 }
 
 .li_link:active, .li_link:focus, .li_link:hover {
-    color: #FFDB57;
+    color: var(--color-yellow);
 }

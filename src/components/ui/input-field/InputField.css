@@ -7,16 +7,16 @@
 }
 
 .label {
-    color: #FFDB57;
+    color: var(--color-yellow);
 }
 
 .input {
     padding: 4px 8px;
     font-size: 20px;
     text-decoration: none;
-    background-color: #11296B;
-    border: 2px outset #FFDB57;
-    color: #EDEDED;
+    background-color: var(--color-dark-blue);
+    border: 2px outset var(--color-yellow);
+    color: var(--color-white);
     border-radius: 16px;
     width: 150px;
 }

@@ -1,3 +1,5 @@
+import { IMediaObject } from "../interfaces/MediaObject";
+
 export interface IPack {
     id: number,
     name: string,
@@ -36,17 +38,18 @@ export interface IBoardRound {
     rows: Map<CategoryName, IBoardItem[]>;
 }
 
-export type MediaType = 'TEXT' | 'VIDEO' | 'AUDIO' | 'IMAGE';
-
 export type QuestionId = string;
-export type answerId = string;
 
-export interface IQuestion {
+export interface IQuestion extends IMediaObject {
     id: QuestionId;
     text: string;
-    mediaType: MediaType;
-    mediaUrl: string;
     price: number;
-    answerId: answerId;
     categoryName: CategoryName;
+}
+
+export type AnswerId = string;
+
+export interface IAnswer extends IMediaObject {
+    id: AnswerId;
+    answerText: string;
 }

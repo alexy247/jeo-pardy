@@ -12,6 +12,8 @@ import Packs from './pages/packs';
 import Registration from './pages/registration';
 import CreateSession from './pages/createSession';
 import CreatePack from './pages/createPack';
+import GameLayout from './components/game-layout/GameLayout';
+import ConectionLayout from './components/connection-layout/ConnectionLayout';
 
 import GameProvider from './context/GameContext';
 
@@ -27,42 +29,49 @@ function App(): JSX.Element {
             <Route path="login">
               <Route index element={<Login />} />
             </Route>
-            <Route path="packs">
+
+            <Route path="packs" element={<ConectionLayout />}>
+              <Route index element={<Packs />} />
               <Route path="createPack">
                 <Route index element={<CreatePack />} />
               </Route>
-              <Route index element={<Packs />} />
             </Route>
-            <Route path="registration">
+
+            <Route path="registration" element={<ConectionLayout />}>
               <Route index element={<Registration />} />
             </Route>
-            <Route path="createSession">
+
+            <Route path="createSession" element={<ConectionLayout />}>
               <Route path=":packId">
                 <Route index element={<CreateSession />} />
               </Route>
             </Route>
-            <Route path="categories">
+
+            <Route path="categories" element={<GameLayout />}>
               <Route path=":sessionId">
                 <Route index element={<Categories />} />
               </Route>
             </Route>
-            <Route path="board">
-               <Route path=":sessionId">
-                <Route path=":roundOrder">
-                  <Route index element={<Board />} />
-                  <Route path="question">
-                    <Route path=":questionId" element={<Question />}/>
-                  </Route>
-                  <Route path="answer">
-                    <Route index element={<Answer />} />
-                    <Route path=":anwserId" element={<Answer />}/>
+
+              <Route path="board" element={<GameLayout />}>
+                <Route path=":sessionId">
+                  <Route path=":roundOrder">
+                    <Route index element={<Board />} />
+                    <Route path="question">
+                      <Route path=":questionId">
+                        <Route index element={<Question />} />
+                        <Route path="answer">
+                          <Route index element={<Answer />} />
+                        </Route>
+                      </Route>
+                    </Route>
                   </Route>
                 </Route>
               </Route>
-              <Route path="secret" element={<div>Пример для роутинга</div>} />
-            </Route>
           </Route>
+
           <Route path='*' element={<EmptyPage/> } />
+
         </Routes> 
       </BrowserRouter>
     </GameProvider>

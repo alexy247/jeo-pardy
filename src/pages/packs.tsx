@@ -1,17 +1,26 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "../store/useGameStore";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
+import { IPack } from "../data/types";
 
 import LinkButton from "../components/actions/LinkButton";
 import SpaceBetween from "../components/ui/space-between/SpaceBetween";
 
+
 export const Packs = () => {
-    const { packs, isLoading, loadPacks } = useGameStore();
+    const { isLoading, loadPacks } = useGameStore();
+    const [ packs, setPacks] = useState<IPack[]>();
     const abortControllerRef = useRef<AbortController>();
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
-        loadPacks(signal);
+        loadPacks(signal)
+            .then(data => {
+                setPacks(data);
+            })
+            .catch(() => {
+                // TODO: добавить страницу с ошибкой
+            });
     });
 
     useEffect(() => {

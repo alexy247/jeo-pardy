@@ -5,14 +5,14 @@
     font-size: 20px;
     text-decoration: none;
 
-    background-color: #11296B;
-    border: 2px outset #FFDB57;
-    color: #EDEDED;
+    background-color: var(--color-dark-blue);
+    border: 2px outset var(--color-yellow);
+    color: var(--color-white);
 
     border-radius: 16px;
+    cursor: pointer;
 }
 
 .action:hover, .action:active, .action:focus {
-    background-color: #00509D;
-    cursor: pointer;
+    background-color: var(--color-light-blue);
 }

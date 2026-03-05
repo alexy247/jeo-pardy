@@ -1,0 +1,21 @@
+.debug-wrapper {
+    position: fixed;
+    right: 12px;
+    top: 12px;
+}
+
+.debug-info {
+    position: absolute;
+    left: -9999999px;
+    visibility: hidden;
+    opacity: 0;
+    width: 400px;
+}
+
+.debug-info.__open {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-100%);
+    top: 12px;
+    left: 50%;
+}

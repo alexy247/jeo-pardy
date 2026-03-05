@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import { IRound } from "../data/types";
 import { useGameStore } from "../store/useGameStore";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
-import { useParams } from "react-router-dom";
 
 import LinkButton from "../components/actions/LinkButton";
 import SlidingBlock from "../components/ui/sliding-block/SlidingBlock";
@@ -11,15 +10,9 @@ import ListItem from "../components/ui/ul-list/list-item/ListItem";
 import CenteringHorizontal from "../components/ui/centering-horizontal-block/CenteringHorizontal";
 
 function Categories() {
-    const params = useParams();
     const [currentGameRounds, setCurrentGameRounds] = useState<IRound[]>();
-    const { loadRounds, isLoading, currentGameSession, setGameSession } = useGameStore();
+    const { loadRounds, currentGameSession } = useGameStore();
     const abortControllerRef = useRef<AbortController>();
-
-    if (params.sessionId && params.sessionId != currentGameSession) {
-        console.log('Сессия в сторе отличается от сессии в ссылке');
-        setGameSession(params.sessionId);
-    }
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
@@ -32,8 +25,6 @@ function Categories() {
             });
     }, [currentGameSession]);
 
-    if (isLoading) return <div>Loading categories...</div>;
-    
     return (
         <CenteringHorizontal>
             <h1>Список категорий:</h1>

@@ -9,7 +9,7 @@ import './TableLinkData.css';
 interface ILinkProps {
     children: ReactNode;
     href: string;
-    isVisited?: string;
+    isVisited?: boolean;
 }
 
 function TableLinkData({ children, href, isVisited }: ILinkProps) {
