@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
-import { IBoardRound, IPack, IQuestion, IRound, SessionId } from '../data/types';
+import { IAnswer, IBoardRound, IPack, IQuestion, IRound, SessionId } from '../data/types';
 import { convertSQLResultToPacks } from '../data/packsConverter';
 import { convertSQLResultToRounds } from '../data/roundsConverter';
 import { convertSQLResultToSessionId } from '../data/sessionConverter';
 import { convertSQLResultToBoardRound } from '../data/boardRoundConverter';
 import { convertSQLResultToQuestion } from '../data/questionConverter';
+import { convertSQLResultToAnswer } from '../data/answerConverter';
 
 interface GameStore {
     packs: IPack[];
@@ -15,6 +16,7 @@ interface GameStore {
     currentRound: number;
     boardRound?: IBoardRound;
     currentQuestion?: IQuestion;
+    currentAnswer?: IAnswer;
     isLoading: boolean;
     error: string | null;
 
@@ -23,7 +25,8 @@ interface GameStore {
     loadPacks: (signal?: AbortSignal) => Promise<IPack[] | undefined>;
     loadRounds: (signal?: AbortSignal) => Promise<IRound[] | undefined>;
     loadCurrentRound: (signal?: AbortSignal) => Promise<IBoardRound | undefined>;
-    loadCurrentQuestion: (questionId: string, signal?: AbortSignal) => Promise<IQuestion | undefined>;
+    loadQuestion: (questionId: string, signal?: AbortSignal) => Promise<IQuestion | undefined>;
+    loadAnswer: (questionId: string, signal?: AbortSignal) => Promise<IAnswer | undefined>;
 
     createSession: (user: User, packId: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
 
@@ -122,18 +125,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
         });
     },
 
-    loadCurrentQuestion: async (questionId, externalSignal) => {
+    loadQuestion: async (questionId, externalSignal) => {
         const currentGameSession = get().currentGameSession;
 
         return get().loadSupabaseData<any, IQuestion>({
-            requestKey: `loadCurrentQuestion:${questionId}:${currentGameSession}`,
-            functionName: 'load_current_question',
+            requestKey: `loadQuestion:${questionId}:${currentGameSession}`,
+            functionName: 'load_question',
             argsObj:  { sessionid: currentGameSession, questionid: questionId },
             callBackFunc: (data) => {
                 const questionConverted = convertSQLResultToQuestion(data);
                 set({ currentQuestion: questionConverted || [] });
 
                 return questionConverted;
+            },
+            externalSignal: externalSignal,
+        });
+    },
+
+    loadAnswer: async (questionId, externalSignal) => {
+        const currentGameSession = get().currentGameSession;
+
+        return get().loadSupabaseData<any, IAnswer>({
+            requestKey: `loadCurrentQuestion:${questionId}:${currentGameSession}`,
+            functionName: 'load_answer',
+            argsObj:  { sessionid: currentGameSession, questionid: questionId },
+            callBackFunc: (data) => {
+                const answerConverted = convertSQLResultToAnswer(data);
+                set({ currentAnswer: answerConverted || [] });
+
+                return answerConverted;
             },
             externalSignal: externalSignal,
         });
@@ -175,11 +195,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     
             const { data, error } = await query.abortSignal(signal);
     
-            if (error) {
-                return Promise.reject(`error ${error.message}`);
-            };
-    
             if (signal.aborted) return;
+
+            if (error) {
+                const errorMsg = `error ${error.message}`;
+                set({ error: errorMsg });
+                return Promise.reject(errorMsg);
+            };
     
             return callBackFunc(data);
         } catch (error) {

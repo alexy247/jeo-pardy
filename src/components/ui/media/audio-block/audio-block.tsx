@@ -1,5 +1,5 @@
 import './audio-block.css';
-import iconPath from '../../../../../dist/speaker_ico.svg';
+import iconPath from '/src/res/speaker_ico.svg';
 
 interface IAudioBlockProps {
     mediaUrl: string;

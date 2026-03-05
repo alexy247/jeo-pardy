@@ -10,25 +10,18 @@ import Timer from "../components/timer/Timer";
 import LinkButton from "../components/actions/LinkButton";
 
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
-import { AudioBlock } from "../components/ui/media/audio-block/audio-block";
-import { VideoBlock } from "../components/ui/media/video-block/video-block";
-import { ImageBlock } from "../components/ui/media/image-block/image-block";
+import { MediaBlock } from "../components/media-component/MediaBlock";
 
 function Question() {
     const params = useParams();
     const [question, setQuestion] = useState<IQuestion>();
-    const { loadCurrentQuestion, isLoading, currentGameSession, setGameSession } = useGameStore();
+    const { loadQuestion } = useGameStore();
     const abortControllerRef = useRef<AbortController>();
-    
-    if (params.sessionId && params.sessionId != currentGameSession) {
-        console.log('Сессия в сторе отличается от сессии в ссылке');
-        setGameSession(params.sessionId);
-    }
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
         if (params.questionId) {
-            loadCurrentQuestion(params.questionId, signal)
+            loadQuestion(params.questionId, signal)
                 .then((data) => {
                     setQuestion(data);
                 })
@@ -38,22 +31,6 @@ function Question() {
                 });
             }
     });
-    
-    if (isLoading) return <div>Loading question...</div>;
-
-    const mediaComponent = () => {
-        switch(question?.mediaType) {
-            case 'AUDIO':
-                return <AudioBlock mediaUrl={question.mediaUrl} />
-            case 'VIDEO':
-                return <VideoBlock mediaUrl={question.mediaUrl} />
-            case 'IMAGE':
-                return <ImageBlock mediaUrl={question.mediaUrl} />
-            case 'TEXT':
-            default:
-                return <></>
-        }
-    };
 
     return (
         <>
@@ -64,9 +41,9 @@ function Question() {
             <HeaderSecond>
                 {question?.text}
             </HeaderSecond>
-                {mediaComponent()}
+                <MediaBlock mediaObject={question!} />
             <Timer/>
-            <LinkButton to={`/board/${params.sessionId}/${params.roundOrder}/answer/${question?.answerId}`} label={"К ответу"} />
+            <LinkButton to={`answer`} label={"К ответу"} />
         </>
     );
 }
