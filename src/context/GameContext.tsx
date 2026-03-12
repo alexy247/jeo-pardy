@@ -8,8 +8,8 @@ export const useGame = () => useContext(GameContext);
 
 interface GameContextType {
   user?: User | null;
-  // TODO:
   signIn?: (email: string, password: string) => Promise<boolean>;
+  signUp?: (email: string, password: string, userName: string) => Promise<boolean>;
 }
 
 export const GameProvider = ({ children }: any) => {
@@ -37,7 +37,16 @@ export const GameProvider = ({ children }: any) => {
     const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
         return await supabase.auth.signInWithPassword({ email, password })
             .then(res => {
-                console.log(JSON.stringify(res));
+                setUserContext(res.data.user);
+                return Promise.resolve(true);
+            })
+            // TODO: show error
+            .catch(err => Promise.reject(err));
+    }, []);
+
+    const signUp = useCallback(async (email: string, password: string, userName: string): Promise<boolean> => {
+        return await supabase.auth.signUp({ email, password, options: { data: { userName: userName } } })
+            .then(res => {
                 setUserContext(res.data.user);
                 return Promise.resolve(true);
             })
@@ -47,8 +56,9 @@ export const GameProvider = ({ children }: any) => {
 
     const contextValue = useMemo(() => ({
         user,
-        signIn
-    }), [user, signIn]);
+        signIn,
+        signUp
+    }), [user, signIn, signUp]);
 
 
     return (
