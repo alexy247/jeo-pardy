@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
+// import { RealtimeChannel } from '@supabase/supabase-js';
 import { IAnswer, IBoardRound, IPack, IQuestion, IRound, SessionId } from '../data/types';
 import { convertSQLResultToPacks } from '../data/packsConverter';
 import { convertSQLResultToRounds } from '../data/roundsConverter';
@@ -8,6 +9,7 @@ import { convertSQLResultToSessionId } from '../data/sessionConverter';
 import { convertSQLResultToBoardRound } from '../data/boardRoundConverter';
 import { convertSQLResultToQuestion } from '../data/questionConverter';
 import { convertSQLResultToAnswer } from '../data/answerConverter';
+// import { questionChangeSQLResultConverter } from '../data/questionEventChangeConverter';
 
 interface GameStore {
     packs: IPack[];
@@ -38,6 +40,7 @@ interface GameStore {
     nextRound: () => void;
     setRound: (value: number) => void;
     setGameSession: (value: string) => void;
+    setCurrentQuestion: (value: IQuestion) => void;
 
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
@@ -128,13 +131,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     loadQuestion: async (questionId, externalSignal) => {
         const currentGameSession = get().currentGameSession;
 
-        return get().loadSupabaseData<any, IQuestion>({
+        return get().loadSupabaseData<any, IQuestion | undefined>({
             requestKey: `loadQuestion:${questionId}:${currentGameSession}`,
             functionName: 'load_question',
             argsObj:  { sessionid: currentGameSession, questionid: questionId },
             callBackFunc: (data) => {
-                const questionConverted = convertSQLResultToQuestion(data);
-                set({ currentQuestion: questionConverted || [] });
+                const questionConverted = convertSQLResultToQuestion(data[0]);
+                set({ currentQuestion: questionConverted });
 
                 return questionConverted;
             },
@@ -145,13 +148,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     loadAnswer: async (questionId, externalSignal) => {
         const currentGameSession = get().currentGameSession;
 
-        return get().loadSupabaseData<any, IAnswer>({
-            requestKey: `loadCurrentQuestion:${questionId}:${currentGameSession}`,
+        return get().loadSupabaseData<any, IAnswer | undefined>({
+            requestKey: `loadAnswer:${questionId}:${currentGameSession}`,
             functionName: 'load_answer',
             argsObj:  { sessionid: currentGameSession, questionid: questionId },
             callBackFunc: (data) => {
                 const answerConverted = convertSQLResultToAnswer(data);
-                set({ currentAnswer: answerConverted || [] });
+                set({ currentAnswer: answerConverted });
 
                 return answerConverted;
             },
@@ -198,7 +201,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (signal.aborted) return;
 
             if (error) {
-                const errorMsg = `error ${error.message}`;
+                const errorMsg = `Error while load supabase data, msg: ${error.message}`;
                 set({ error: errorMsg });
                 return Promise.reject(errorMsg);
             };
@@ -220,6 +223,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     setRound: (value: number) => { set({currentRound: value}) },
     setGameSession: (value: string) => { set({currentGameSession: value}) },
+    setCurrentQuestion: (value: IQuestion) => { set({ currentQuestion: value}) },
 
     setLoading: (loading) => set({ isLoading: loading }),
     setError: (error) => set({ error })

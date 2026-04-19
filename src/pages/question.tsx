@@ -12,38 +12,46 @@ import LinkButton from "../components/actions/LinkButton";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 import { MediaBlock } from "../components/media-component/MediaBlock";
 
+import { useHybridQuestionRealtime } from "../hoocks/useHybridQuestionRealtime";
+
 function Question() {
     const params = useParams();
     const [question, setQuestion] = useState<IQuestion>();
-    const { loadQuestion } = useGameStore();
+    const { loadQuestion, currentGameSession } = useGameStore();
+    
     const abortControllerRef = useRef<AbortController>();
+
+    const { openQuestion } = useHybridQuestionRealtime(currentGameSession);
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
         if (params.questionId) {
-            loadQuestion(params.questionId, signal)
-                .then((data) => {
-                    setQuestion(data);
-                })
-                .catch(() => {
-                    // TODO: добавить страницу с ошибкой c EXEPTION-01
-                    // EXEPTION-01|Question 92ccb882-1351-4a87-9d2c-f3dccb246ca4 has already done for user d01fd48b-01ac-4d88-8230-25600d588894
+            const questionId = params.questionId;
+            Promise.all([openQuestion(questionId), loadQuestion(questionId, signal)])
+                .then((values) => {
+                    if (values[0] && values[1]) {
+                        setQuestion(values[1]);
+                    }
                 });
-            }
+        }
     });
 
     return (
         <>
-            Вопрос {params.questionId}
-            <HeaderFirst>
-                {question?.categoryName} за {question?.price}
-            </HeaderFirst>
-            <HeaderSecond>
-                {question?.text}
-            </HeaderSecond>
-                <MediaBlock mediaObject={question!} />
-            <Timer/>
-            <LinkButton to={`answer`} label={"К ответу"} />
+            Вопрос {params.questionId},
+            {question &&
+                <>
+                    <HeaderFirst>
+                        {question?.categoryName} за {question?.price}
+                    </HeaderFirst>
+                    <HeaderSecond>
+                        {question?.text}
+                    </HeaderSecond>
+                        <MediaBlock mediaObject={question!} />
+                    <Timer/>
+                    <LinkButton to={`answer`} label={"К ответу"} />
+                </>
+            }
         </>
     );
 }
