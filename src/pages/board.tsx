@@ -26,8 +26,7 @@ function Board() {
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
-        loadCurrentRound(signal)
-                // @ts-ignore
+            loadCurrentRound(signal)
                 .then((data) => {
                     if (data) {
                         setRoundName(data.roundName);

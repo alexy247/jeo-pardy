@@ -27,7 +27,7 @@ export interface IRound {
 export type QuestionStatus = 'INITIAL' | 'ACTIVE' | 'FINISHED';
 
 export interface IBoardItem {
-    questionId: string;
+    questionId: QuestionId;
     questionStatus: QuestionStatus;
     price: number;
 }
@@ -52,4 +52,9 @@ export type AnswerId = string;
 export interface IAnswer extends IMediaObject {
     id: AnswerId;
     answerText: string;
+}
+
+export interface IQuestionChangeResult {
+    questionId: QuestionId;
+    questionStatus: QuestionStatus;
 }
