@@ -43,27 +43,7 @@ export const useHybridQuestionRealtime = (currentGameSession: SessionId, handleQ
       
     };
 
-  const openQuestion = async (questionId: QuestionId): Promise<any> => {
-    const channel = supabase.channel(UPDATE_CHANNEL, {
-      config: {
-        broadcast: { 
-          self: false,
-          ack: true
-          }
-        }
-    });
-
-    return channel
-        .send({
-            type: 'broadcast',
-            event: BROADCAST_EVENT,
-            payload: { questionId: questionId, questionStatus: 'ACTIVE'},
-        })
-        .catch((error) => console.error('Broadcast failed, using direct DB update:', error))
-        .finally(() => questionStatusBDUpdate('ACTIVE', questionId, new Date().toISOString()));
-  };
-
-  const openAnswer = async (questionId: QuestionId): Promise<any> => {
+  const changeQuestionStatus = async (status: QuestionStatus, questionId: QuestionId, updateDate: string): Promise<any> => {
     const channel = supabase.channel(UPDATE_CHANNEL, {
       config: {
         broadcast: { 
@@ -77,11 +57,23 @@ export const useHybridQuestionRealtime = (currentGameSession: SessionId, handleQ
       .send({
           type: 'broadcast',
           event: BROADCAST_EVENT,
-          payload: { questionId: questionId, questionStatus: 'FINISHED' },
+          payload: { questionId: questionId, questionStatus: status },
       })
       .catch((error) => console.error('Broadcast failed, using direct DB update:', error))
-      .finally(() => questionStatusBDUpdate('FINISHED', questionId, new Date().toISOString()));
+      .finally(() => questionStatusBDUpdate(status, questionId, updateDate));
   };
 
-  return { subscribeOnChange, openQuestion, openAnswer };
+  const disableQuestion = async (questionId: QuestionId): Promise<any> => {
+    return changeQuestionStatus('DISABLED', questionId, new Date().toISOString())
+  };
+
+  const openQuestion = async (questionId: QuestionId): Promise<any> => {
+    return changeQuestionStatus('ACTIVE', questionId, new Date().toISOString())
+  };
+
+  const openAnswer = async (questionId: QuestionId): Promise<any> => {
+    return changeQuestionStatus('FINISHED', questionId, new Date().toISOString())
+  };
+
+  return { subscribeOnChange, openQuestion, disableQuestion, openAnswer };
 };

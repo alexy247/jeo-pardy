@@ -24,7 +24,7 @@ export interface IRound {
     categories: ICategory[],
 }
 
-export type QuestionStatus = 'INITIAL' | 'ACTIVE' | 'FINISHED';
+export type QuestionStatus = 'INITIAL' | 'ACTIVE' | 'DISABLED' | 'FINISHED';
 
 export interface IBoardItem {
     questionId: QuestionId;
@@ -32,7 +32,7 @@ export interface IBoardItem {
     price: number;
 }
 
-export interface IBoardRound {
+export interface IBoard {
     roundName: RoundName;
     categoriesNames: CategoryName[];
     rows: Map<CategoryName, IBoardItem[]>;
@@ -57,4 +57,10 @@ export interface IAnswer extends IMediaObject {
 export interface IQuestionChangeResult {
     questionId: QuestionId;
     questionStatus: QuestionStatus;
+}
+
+export interface IPlayer {
+    email: string;
+    username?: string;
+    avatarUrl?: string;
 }

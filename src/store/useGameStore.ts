@@ -1,24 +1,30 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
-// import { RealtimeChannel } from '@supabase/supabase-js';
-import { IAnswer, IBoardRound, IPack, IQuestion, IRound, SessionId } from '../data/types';
+import { IAnswer, IBoard, IPack, IPlayer, IQuestion, IRound, QuestionStatus, SessionId } from '../data/types';
 import { convertSQLResultToPacks } from '../data/packsConverter';
 import { convertSQLResultToRounds } from '../data/roundsConverter';
 import { convertSQLResultToSessionId } from '../data/sessionConverter';
 import { convertSQLResultToBoardRound } from '../data/boardRoundConverter';
 import { convertSQLResultToQuestion } from '../data/questionConverter';
 import { convertSQLResultToAnswer } from '../data/answerConverter';
-// import { questionChangeSQLResultConverter } from '../data/questionEventChangeConverter';
+import { convertSQLResultToPlayers } from '../data/playersConverter';
+import { convertSQLResultToScore } from '../data/scoreConverter';
 
 interface GameStore {
     packs: IPack[];
+    
     currentGameSession: SessionId;
     currentSessionRounds: IRound[];
     currentRound: number;
-    boardRound?: IBoardRound;
+    currentBoard?: IBoard;
     currentQuestion?: IQuestion;
+    currentQuestionStatus?: QuestionStatus;
     currentAnswer?: IAnswer;
+    currentScore: number;
+
+    currentGameSessionPlayers: IPlayer[] | undefined;
+
     isLoading: boolean;
     error: string | null;
 
@@ -26,9 +32,13 @@ interface GameStore {
 
     loadPacks: (signal?: AbortSignal) => Promise<IPack[] | undefined>;
     loadRounds: (signal?: AbortSignal) => Promise<IRound[] | undefined>;
-    loadCurrentRound: (signal?: AbortSignal) => Promise<IBoardRound | undefined>;
+    loadCurrentRound: (user: User, signal?: AbortSignal) => Promise<IBoard | undefined>;
     loadQuestion: (questionId: string, signal?: AbortSignal) => Promise<IQuestion | undefined>;
     loadAnswer: (questionId: string, signal?: AbortSignal) => Promise<IAnswer | undefined>;
+
+    loadPlayers: (signal?: AbortSignal) => Promise<IPlayer[] | undefined>;
+    loadScore: (user: User, signal?: AbortSignal) => Promise<number | undefined>;
+    updateScore: (user: User, success: boolean, signal?: AbortSignal) => Promise<number | undefined>;
 
     createSession: (user: User, packId: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
 
@@ -41,6 +51,7 @@ interface GameStore {
     setRound: (value: number) => void;
     setGameSession: (value: string) => void;
     setCurrentQuestion: (value: IQuestion) => void;
+    setCurrentQuestionStatus: (value: QuestionStatus) => void;
 
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
@@ -60,6 +71,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     currentGameSession: '',
     currentSessionRounds: [],
     currentRound: 0,
+    currentScore: 0,
+    currentGameSessionPlayers: undefined,
     isLoading: false,
     error: null,
 
@@ -109,18 +122,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
         });
     },
 
-    loadCurrentRound: async (externalSignal) => {
+    loadCurrentRound: async (user, externalSignal) => {
         const currentRound = get().currentRound;
         const currentGameSession = get().currentGameSession;
 
-        return get().loadSupabaseData<any, IBoardRound>({
+        return get().loadSupabaseData<any, IBoard>({
             requestKey: `loadCurrentRound:${currentRound}:${currentGameSession}`,
             functionName: 'load_current_round',
-            argsObj:  { sessionid: currentGameSession , roundorder: currentRound },
+            argsObj:  { sessionid: currentGameSession, userid: user.id, roundorder: currentRound },
             callBackFunc: (data) => {
                 const boardRoundConverted = convertSQLResultToBoardRound(data);
 
-                set({ boardRound: boardRoundConverted || [] });
+                set({ currentBoard: boardRoundConverted || [] });
 
                 return boardRoundConverted;
             },
@@ -157,6 +170,59 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 set({ currentAnswer: answerConverted });
 
                 return answerConverted;
+            },
+            externalSignal: externalSignal,
+        });
+    },
+
+    loadPlayers: async (externalSignal) => {
+        const currentGameSession = get().currentGameSession;
+
+        return get().loadSupabaseData<any, IPlayer[] | undefined>({
+            requestKey: `loadPlayers:${currentGameSession}`,
+            functionName: 'load_players',
+            argsObj:  { sessionid: currentGameSession },
+            callBackFunc: (data) => {
+                const playersConverted = convertSQLResultToPlayers(data);
+                set({ currentGameSessionPlayers: playersConverted });
+
+                return playersConverted;
+            },
+            externalSignal: externalSignal,
+        });
+    },
+
+    loadScore: async (user, externalSignal) => {
+        const currentGameSession = get().currentGameSession;
+
+        return get().loadSupabaseData<any, number | undefined>({
+            requestKey: `loadScore:${user.id}:${currentGameSession}`,
+            functionName: 'load_score',
+            argsObj:  { sessionid: currentGameSession, userid: user.id },
+            callBackFunc: (data) => {
+                const scoreConverted = convertSQLResultToScore(data);
+                set({ currentScore: scoreConverted });
+
+                return scoreConverted;
+            },
+            externalSignal: externalSignal,
+        });
+    },
+
+    updateScore: async (user, success, externalSignal) => {
+        const currentGameSession = get().currentGameSession;
+        const currentQuestion = get().currentQuestion;
+        const price: number | undefined = success ? currentQuestion?.price : (-1) * currentQuestion?.price!;
+
+        return get().loadSupabaseData<any, number | undefined>({
+            requestKey: `updateScore:${user.id}:${currentGameSession}`,
+            functionName: 'update_score',
+            argsObj:  { sessionid: currentGameSession, userid: user.id, value: price || 0},
+            callBackFunc: (data) => {
+                const scoreConverted = convertSQLResultToScore(data);
+                set({ currentScore: scoreConverted });
+
+                return scoreConverted;
             },
             externalSignal: externalSignal,
         });
@@ -224,6 +290,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     setRound: (value: number) => { set({currentRound: value}) },
     setGameSession: (value: string) => { set({currentGameSession: value}) },
     setCurrentQuestion: (value: IQuestion) => { set({ currentQuestion: value}) },
+    setCurrentQuestionStatus: (value: QuestionStatus) => { set({ currentQuestionStatus: value}) },
 
     setLoading: (loading) => set({ isLoading: loading }),
     setError: (error) => set({ error })

@@ -1,15 +1,19 @@
 import { Fragment, useCallback, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import { useGameStore } from '../../store/useGameStore';
 
-import DebugInfo from '../debug/DebugInfo';
-import CenteringBlock from '../ui/centering-block/CenteringBlock';
+import { useGameStore } from '../../store/useGameStore';
 import { IQuestionChangeResult } from '../../data/types';
 import { useHybridQuestionRealtime } from '../../hoocks/useHybridQuestionRealtime';
 
+import DebugInfo from '../debug/DebugInfo';
+import CenteringBlock from '../ui/centering-block/CenteringBlock';
+import PlayersInfo from '../players-info/PlayersInfo';
+import GameScore from '../game-scrore/GameScore';
+import SpaceBetween from '../ui/space-between/SpaceBetween';
+
 function GameLayout() {
     const params = useParams();
-    const { currentGameSession, setGameSession, currentRound, error } = useGameStore();
+    const { currentGameSession, setGameSession, currentRound, setCurrentQuestionStatus, error } = useGameStore();
     const navigate = useNavigate();
 
     if (error) {
@@ -26,15 +30,22 @@ function GameLayout() {
     }
 
     const handleQuestionUpdate = useCallback((questionChangeResult: IQuestionChangeResult) => {
+        console.log(`handleQuestionUpdate status: ${questionChangeResult.questionStatus}`);
         switch (questionChangeResult.questionStatus) {
             case "ACTIVE":
+                setCurrentQuestionStatus("ACTIVE");
                 navigate(`/board/${currentGameSession}/${currentRound}/question/${questionChangeResult.questionId}`);
                 break;
             case "FINISHED":
+                setCurrentQuestionStatus("FINISHED");
                 navigate(`/board/${currentGameSession}/${currentRound}/question/${questionChangeResult.questionId}/answer`);
+                break;
+            case "DISABLED":
+                setCurrentQuestionStatus("DISABLED");
                 break;
             case "INITIAL":
             default:
+                setCurrentQuestionStatus("INITIAL");
                 navigate(`/board/${currentGameSession}/${currentRound}/`);
                 break;
         }
@@ -49,6 +60,10 @@ function GameLayout() {
     return (
         <Fragment>
             <DebugInfo />
+            <SpaceBetween>
+                <PlayersInfo />
+                <GameScore />
+            </SpaceBetween>
             <Outlet />
         </Fragment>
     );
