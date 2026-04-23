@@ -1,0 +1,23 @@
+.players-list {
+    padding-left: 24px;
+}
+
+.players-list-item {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.players-list-item + .players-list-item  {
+    margin-left: -8px;
+}
+
+.player {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.player-img {
+    display: block;
+    width: 40px;
+    height: 40px;
+}

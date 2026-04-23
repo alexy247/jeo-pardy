@@ -10,6 +10,7 @@ import { useHybridQuestionRealtime } from "../hoocks/useHybridQuestionRealtime";
 import HeaderSecond from "../components/header/header-second/HeaderSecond";
 import HeaderFirst from "../components/header/header-first/HeaderFirst";
 import LinkButton from "../components/actions/LinkButton";
+import CenteringHorizontal from "../components/ui/centering-horizontal-block/CenteringHorizontal";
 
 function Answer() {
     const params = useParams();
@@ -45,7 +46,9 @@ function Answer() {
                         {answer?.answerText}
                     </HeaderSecond>
                     <MediaBlock mediaObject={answer!} />
-                    <LinkButton to={`/board/${params.sessionId}/${params.roundOrder}/`} label={"К доске"} />
+                    <CenteringHorizontal>
+                        <LinkButton to={`/board/${params.sessionId}/${params.roundOrder}/`} label={"К доске"} />
+                    </CenteringHorizontal>
                 </>
             }
         </>

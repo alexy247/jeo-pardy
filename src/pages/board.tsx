@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 import { useGameStore } from "../store/useGameStore";
 import { CategoryName, IBoardItem } from "../data/types";
+import { useGame } from "../context/GameContext";
 
 import TableLinkData from "../components/table/table-link-data/TableLinkData";
 import TableHeader from "../components/table/table-header/TableHeader";
@@ -12,6 +13,7 @@ import HeaderFirst from "../components/header/header-first/HeaderFirst";
 
 function Board() {
     const params = useParams();
+    const { user } = useGame();
     const { loadCurrentRound, currentRound, currentGameSession, setRound } = useGameStore();
     const abortControllerRef = useRef<AbortController>();
   
@@ -26,7 +28,8 @@ function Board() {
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
-            loadCurrentRound(signal)
+        if (user) {
+            loadCurrentRound(user, signal)
                 .then((data) => {
                     if (data) {
                         setRoundName(data.roundName);
@@ -37,7 +40,8 @@ function Board() {
                 .catch(() => {
                     // TODO: добавить страницу с ошибкой
                 });
-    }, [currentGameSession, currentRound]);
+        }
+    }, [currentGameSession, currentRound, user]);
 
     return (<>
             <HeaderFirst>

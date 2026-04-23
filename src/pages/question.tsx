@@ -6,8 +6,7 @@ import { useGameStore } from "../store/useGameStore";
 
 import HeaderSecond from "../components/header/header-second/HeaderSecond";
 import HeaderFirst from "../components/header/header-first/HeaderFirst";
-import Timer from "../components/timer/Timer";
-import LinkButton from "../components/actions/LinkButton";
+import AnswerForm from "../components/answer-form/AnswerForm";
 
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 import { MediaBlock } from "../components/media-component/MediaBlock";
@@ -47,9 +46,8 @@ function Question() {
                     <HeaderSecond>
                         {question?.text}
                     </HeaderSecond>
-                        <MediaBlock mediaObject={question!} />
-                    <Timer/>
-                    <LinkButton to={`answer`} label={"К ответу"} />
+                        <MediaBlock mediaObject={question} />
+                        <AnswerForm question={question} />
                 </>
             }
         </>
