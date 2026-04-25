@@ -12,6 +12,7 @@ import InputField from "../ui/input-field/InputField";
 import ButtonsContainer from "../ui/buttons-container/ButtonsContainer";
 import ButtonType from "../actions/ButtonType";
 import LinkButton from "../actions/LinkButton";
+import { sendLog } from "../../lib/logger";
 
 interface IAnswerFormProps {
     question: IQuestion;
@@ -37,6 +38,14 @@ function AnswerForm({ question }: IAnswerFormProps) {
 
     const abortControllerRef = useRef<AbortController>();
 
+    const logger = (message: string) => sendLog({
+        level: 'debug',
+        userId: user ? user?.id : 'anonym',
+        sessionId: currentGameSession,
+        component: 'AnswerForm',
+        message: message
+    });
+
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
         if (questionId) {
@@ -49,7 +58,7 @@ function AnswerForm({ question }: IAnswerFormProps) {
     });
 
     const onTimerEnd = () => {
-        console.log('onTimerEnd');
+        logger('firstTimerEnd');
         setAnswerButtonVisible(true);
         setFirstTimerEnded(true);
     };
@@ -57,7 +66,7 @@ function AnswerForm({ question }: IAnswerFormProps) {
     const onAnswerButtonClick = () => {
         disableQuestion(questionId)
             .then(() => {
-                console.log('disableQuestion');
+                logger('disableQuestion');
                 setInputVisible(true);
                 setAnswerButtonVisible(false);
             })
@@ -76,12 +85,12 @@ function AnswerForm({ question }: IAnswerFormProps) {
             updateScore(user, success)
                 .then(() => {
                     if (success) {
-                        console.log('updateScore success');
+                        logger('updateScore success');
                         setAnswerEnabled(true);
                         setAnswerButtonVisible(false);
                         setInputVisible(false);
                     } else {
-                        console.log('updateScore openQuestion');
+                        logger('updateScore openQuestion');
                         openQuestion(questionId);
                         setfalseStartActive(true);
                         setAnswerButtonVisible(false);
@@ -104,7 +113,7 @@ function AnswerForm({ question }: IAnswerFormProps) {
     useEffect(() => {
         let timerId: any;
         if (falseStartActive) {
-            console.log('falseStartActive setTimeout');
+            logger('falseStartActive');
             timerId = setTimeout(() => {
                 setAnswerButtonVisible(true);
                 setfalseStartActive(false);

@@ -10,6 +10,7 @@ import { convertSQLResultToQuestion } from '../data/questionConverter';
 import { convertSQLResultToAnswer } from '../data/answerConverter';
 import { convertSQLResultToPlayers } from '../data/playersConverter';
 import { convertSQLResultToScore } from '../data/scoreConverter';
+import { sendLog } from '../lib/logger';
 
 interface GameStore {
     packs: IPack[];
@@ -29,6 +30,8 @@ interface GameStore {
     error: string | null;
 
     activeRequests: Map<string, AbortController>;
+
+    logger: (message: string) => void;
 
     loadPacks: (signal?: AbortSignal) => Promise<IPack[] | undefined>;
     loadRounds: (signal?: AbortSignal) => Promise<IRound[] | undefined>;
@@ -77,6 +80,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     error: null,
 
     activeRequests: new Map(),
+
+    logger: (message) => sendLog({
+        level: 'debug',
+        userId: 'anonym',
+        sessionId: get().currentGameSession,
+        component: 'useGameStore',
+        message: message
+    }),
 
     abortRequest: (key: string) => {
         const controller = get().activeRequests.get(key);
@@ -269,13 +280,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (error) {
                 const errorMsg = `Error while load supabase data, msg: ${error.message}`;
                 set({ error: errorMsg });
+                get().logger(error.message);
                 return Promise.reject(errorMsg);
             };
     
             return callBackFunc(data);
         } catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') {
-                console.log('Request cancelled:', requestKey);
+                get().logger(`Request cancelled: ${requestKey}`);
                 return;
             }
             set({ error: error instanceof Error ? error.message : `Failed to fetch ${requestKey}` });
@@ -293,5 +305,5 @@ export const useGameStore = create<GameStore>((set, get) => ({
     setCurrentQuestionStatus: (value: QuestionStatus) => { set({ currentQuestionStatus: value}) },
 
     setLoading: (loading) => set({ isLoading: loading }),
-    setError: (error) => set({ error })
+    setError: (error) => set({ error }),
 }));
