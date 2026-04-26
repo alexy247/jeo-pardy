@@ -1,0 +1,36 @@
+.leaderboard-item {
+    display: flex;
+    font-size: 20px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.leaderboard-item_place {
+    font-size: 30px;
+    font-weight: bold; 
+}
+
+li:nth-child(1) .leaderboard-item_place{
+    color: #FFD700;
+}
+
+li:nth-child(2) .leaderboard-item_place{
+    color: #C0C0C0;
+}
+
+li:nth-child(3) .leaderboard-item_place {
+    color: #CD7F32;
+}
+
+.leaderboard-item_avatar {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.leaderboard-item_name {
+    
+}
+
+.leaderboard-item_score {
+    
+}

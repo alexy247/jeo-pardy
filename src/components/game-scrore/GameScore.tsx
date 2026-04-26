@@ -15,7 +15,6 @@ function GameScore() {
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
         if (user && score != currentScore) {
-            console.log('Загружаем скор');
             loadScore(user, signal)
                 .then(res => setScore(res));
         }

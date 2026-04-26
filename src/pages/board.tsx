@@ -10,6 +10,7 @@ import TableHeader from "../components/table/table-header/TableHeader";
 import TableRow from "../components/table/table-row/TableRow";
 import Table from "../components/table/table/Table";
 import HeaderFirst from "../components/header/header-first/HeaderFirst";
+import TableActions from "../components/table-actions/TableActions";
 
 function Board() {
     const params = useParams();
@@ -19,7 +20,7 @@ function Board() {
   
     const [roundName, setRoundName] = useState<string>("");
     const [categories, setCategories] = useState<string[]>([])
-    const [rows, setBoardRows] = useState<Map<CategoryName, IBoardItem[]>>(new Map())
+    const [rows, setBoardRows] = useState<Map<CategoryName, IBoardItem[]>>(new Map());
 
     if (Number(params.roundOrder) != currentRound) {
         console.log('Раунд в сторе отличается от раунда в ссылке');
@@ -64,6 +65,7 @@ function Board() {
                     </TableRow>
                 ))}
             </Table>
+            <TableActions />
         </>
     );
 };

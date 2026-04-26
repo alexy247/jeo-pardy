@@ -1,9 +1,9 @@
-import { CategoryName, IBoardItem, IBoard, QuestionStatus } from "./types";
+import { CategoryName, IBoard, QuestionStatus, IBoardRow } from "./types";
 
 export const convertSQLResultToBoardRound = (response: Array<{round_name: string, category_name: string, question_id: string, question_price: number, round_order_num: number, question_status: QuestionStatus}>): IBoard => {
     let roundName: string = "";
     let categoriesNames: CategoryName[] = [];
-    let rows: Map<CategoryName, IBoardItem[]> = new Map();
+    let rows: IBoardRow = new Map();
 
     response.forEach((item) => {
         if (roundName != item.round_name) {

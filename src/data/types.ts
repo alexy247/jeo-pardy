@@ -32,10 +32,12 @@ export interface IBoardItem {
     price: number;
 }
 
+export type IBoardRow = Map<CategoryName, IBoardItem[]>;
+
 export interface IBoard {
     roundName: RoundName;
     categoriesNames: CategoryName[];
-    rows: Map<CategoryName, IBoardItem[]>;
+    rows: IBoardRow;
 }
 
 export type QuestionId = string;
@@ -63,4 +65,8 @@ export interface IPlayer {
     email: string;
     username?: string;
     avatarUrl?: string;
+}
+
+export interface IPlayerWithScore extends IPlayer {
+    score: number;
 }
