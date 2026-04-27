@@ -4,7 +4,7 @@
 }
 
 .sliding {
-    animation: slideAnimation 15s 1 alternate;
+    animation: slideAnimation 10s 1 alternate;
 }
 
 .sliding-frame { 
@@ -14,5 +14,5 @@
 
 .sliding-area { 
     overflow: scroll;
-    height: 600px;
+    height: 560px;
 }

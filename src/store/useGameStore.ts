@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
-import { IAnswer, IBoard, IPack, IPlayer, IQuestion, IRound, QuestionStatus, SessionId } from '../data/types';
+import { IAnswer, IBoard, IPack, IPlayer, IPlayerWithScore, IQuestion, IRound, QuestionStatus, SessionId } from '../data/types';
 import { convertSQLResultToPacks } from '../data/packsConverter';
 import { convertSQLResultToRounds } from '../data/roundsConverter';
 import { convertSQLResultToSessionId } from '../data/sessionConverter';
@@ -11,12 +11,14 @@ import { convertSQLResultToAnswer } from '../data/answerConverter';
 import { convertSQLResultToPlayers } from '../data/playersConverter';
 import { convertSQLResultToScore } from '../data/scoreConverter';
 import { sendLog } from '../lib/logger';
+import { convertSQLResultToPlayersWithScore } from '../data/playersWithScoreConverter';
 
 interface GameStore {
     packs: IPack[];
     
     currentGameSession: SessionId;
     currentSessionRounds: IRound[];
+    currentSessionNumberOfRounds: number | undefined;
     currentRound: number;
     currentBoard?: IBoard;
     currentQuestion?: IQuestion;
@@ -25,6 +27,7 @@ interface GameStore {
     currentScore: number;
 
     currentGameSessionPlayers: IPlayer[] | undefined;
+    currentLeaderboard: IPlayerWithScore[] | undefined;
 
     isLoading: boolean;
     error: string | null;
@@ -43,6 +46,8 @@ interface GameStore {
     loadScore: (user: User, signal?: AbortSignal) => Promise<number | undefined>;
     updateScore: (user: User, success: boolean, signal?: AbortSignal) => Promise<number | undefined>;
 
+    loadPlayersWithScore: (signal?: AbortSignal) => Promise<IPlayerWithScore[] | undefined>;
+
     createSession: (user: User, packId: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
 
     abortRequest: (key: string) => void;
@@ -58,6 +63,8 @@ interface GameStore {
 
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
+    
+    reset: () => void;
 }
 
 interface ILoadSupabaseDataParams<T, K> {
@@ -68,18 +75,24 @@ interface ILoadSupabaseDataParams<T, K> {
     externalSignal?: AbortSignal,
 }
 
-export const useGameStore = create<GameStore>((set, get) => ({
-    // Начальное состояние
+const initialState = {
     packs: [],
     currentGameSession: '',
     currentSessionRounds: [],
+    currentSessionNumberOfRounds: undefined,
     currentRound: 0,
     currentScore: 0,
     currentGameSessionPlayers: undefined,
+    currentLeaderboard: undefined,
     isLoading: false,
     error: null,
 
     activeRequests: new Map(),
+};
+
+export const useGameStore = create<GameStore>((set, get) => ({
+    // Начальное состояние
+    ...initialState,
 
     logger: (message) => sendLog({
         level: 'debug',
@@ -126,6 +139,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             callBackFunc: (data) => {
                 const currentCategoriesConverted = convertSQLResultToRounds(data);
                 set({ currentSessionRounds: currentCategoriesConverted || [] });
+                set({ currentSessionNumberOfRounds: currentCategoriesConverted.length });
 
                 return currentCategoriesConverted;
             },
@@ -239,6 +253,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
         });
     },
 
+    loadPlayersWithScore: async (externalSignal) => {
+        const currentGameSession = get().currentGameSession;
+
+        return get().loadSupabaseData<any, IPlayerWithScore[] | undefined>({
+            requestKey: `loadPlayersWithScore:${currentGameSession}`,
+            functionName: 'load_players_with_score',
+            argsObj:  { sessionid: currentGameSession },
+            callBackFunc: (data) => {
+                const playersConverted = convertSQLResultToPlayersWithScore(data);
+                set({ currentLeaderboard: playersConverted });
+
+                return playersConverted;
+            },
+            externalSignal: externalSignal,
+        });
+    },
+
     createSession: async (user, packId, externalSignal) => {
         return get().loadSupabaseData<any, SessionId>({
             requestKey: `createSession:${packId}`,
@@ -306,4 +337,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     setLoading: (loading) => set({ isLoading: loading }),
     setError: (error) => set({ error }),
+
+    reset: () => set(initialState),
 }));

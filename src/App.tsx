@@ -14,10 +14,12 @@ import CreateSession from './pages/createSession';
 import CreatePack from './pages/createPack';
 import GameLayout from './components/game-layout/GameLayout';
 import ConectionLayout from './components/connection-layout/ConnectionLayout';
+import Leaderboard from './pages/leaderboard';
 
 import GameProvider from './context/GameContext';
 
 import './App.css';
+
 
 function App(): JSX.Element {
   return (
@@ -55,6 +57,7 @@ function App(): JSX.Element {
 
               <Route path="board" element={<GameLayout />}>
                 <Route path=":sessionId">
+                  <Route path="leaderboard" element={<Leaderboard />}/>
                   <Route path=":roundOrder">
                     <Route index element={<Board />} />
                     <Route path="question">

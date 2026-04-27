@@ -1,8 +1,20 @@
+import { ReactNode } from 'react';
+import classNames from 'classnames';
+
 import './CenteringHorizontal.css';
 
-function CenteringHorizontal({ children }: any) {
+interface ICenteringHorizontalProps {
+    children: ReactNode;
+    isBottom?: boolean;
+}
+
+function CenteringHorizontal({ children, isBottom = false }: ICenteringHorizontalProps) {
+    const blockClassNames = classNames("centering-horizontal", {
+        ["__bottom"]: isBottom
+    });
+
     return (
-        <div className="centering-horizontal">
+        <div className={blockClassNames}>
             {children}
         </div>
     );

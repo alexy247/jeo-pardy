@@ -6,3 +6,7 @@
     width: 400px;
     text-align: center;
 }
+
+.centering-horizontal.__bottom {
+    bottom: 20px;
+}

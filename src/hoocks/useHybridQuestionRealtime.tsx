@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { IQuestionChangeResult, QuestionId, QuestionStatus, SessionId } from '../data/types';
 
-const BROADCAST_EVENT = 'question-status-change';
-const UPDATE_CHANNEL = 'game-update-question-channel';
+export const useHybridQuestionRealtime = (currentGameSession: SessionId, handleQuestionUpdate?: (questionChangeResult: IQuestionChangeResult) => void) => {
+    const BROADCAST_EVENT = `question-status-change-${currentGameSession}`;
+    const UPDATE_CHANNEL = `game-update-question-channel-${currentGameSession}`;  
 
-export const useHybridQuestionRealtime = (currentGameSession: SessionId, handleQuestionUpdate?: (question: IQuestionChangeResult) => void) => {
-    const [lastQuestion, setLastQuestion] = useState<QuestionId>();
+    let lastQuestionLet: QuestionId | undefined = undefined;
 
     const questionStatusBDUpdate = async (status: QuestionStatus, questionId: QuestionId, updateDate: string) => {
       await supabase
@@ -19,7 +18,7 @@ export const useHybridQuestionRealtime = (currentGameSession: SessionId, handleQ
         .eq('question_id', questionId);
     };
 
-    const subscribeOnChange = async () => {
+    const subscribeOnQuestionChange = async () => {
       const channel = supabase.channel(UPDATE_CHANNEL, {
         config: {
           broadcast: { 
@@ -30,8 +29,8 @@ export const useHybridQuestionRealtime = (currentGameSession: SessionId, handleQ
       });
 
       const messageReceived = (payload: any) => {
-          if (lastQuestion != payload.payload.questionId) {
-              setLastQuestion(payload.payload.questionId);
+          if (lastQuestionLet != payload.payload.questionId) {
+              lastQuestionLet = payload.payload.questionId;
               handleQuestionUpdate && handleQuestionUpdate(payload.payload);
           }
       }
@@ -75,5 +74,5 @@ export const useHybridQuestionRealtime = (currentGameSession: SessionId, handleQ
     return changeQuestionStatus('FINISHED', questionId, new Date().toISOString())
   };
 
-  return { subscribeOnChange, openQuestion, disableQuestion, openAnswer };
+  return { subscribeOnQuestionChange, openQuestion, disableQuestion, openAnswer };
 };

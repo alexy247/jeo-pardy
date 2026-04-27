@@ -2,7 +2,7 @@ import { Fragment, useCallback, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
 import { useGameStore } from '../../store/useGameStore';
-import { IQuestionChangeResult } from '../../data/types';
+import { IQuestionChangeResult, IRoundChangeResult } from '../../data/types';
 import { useHybridQuestionRealtime } from '../../hoocks/useHybridQuestionRealtime';
 
 import DebugInfo from '../debug/DebugInfo';
@@ -10,10 +10,11 @@ import CenteringBlock from '../ui/centering-block/CenteringBlock';
 import PlayersInfo from '../players-info/PlayersInfo';
 import GameScore from '../game-scrore/GameScore';
 import SpaceBetween from '../ui/space-between/SpaceBetween';
+import { useHybridRoundRealtime } from '../../hoocks/useHybridRoundRealtime';
 
 function GameLayout() {
     const params = useParams();
-    const { currentGameSession, setGameSession, currentRound, setCurrentQuestionStatus, error } = useGameStore();
+    const { currentGameSession, setGameSession, currentRound, currentQuestion, currentAnswer, setCurrentQuestionStatus, currentGameSessionPlayers, currentScore, error } = useGameStore();
     const navigate = useNavigate();
 
     if (error) {
@@ -24,13 +25,18 @@ function GameLayout() {
         );
     }
 
-    if (params.sessionId && params.sessionId != currentGameSession) {
-        console.log('Сессия в сторе отличается от сессии в ссылке');
-        setGameSession(params.sessionId);
-    }
+    const checkStoreData = (): void => {
+        if (params.sessionId && params.sessionId != currentGameSession) {
+            console.log('Сессия в сторе отличается от сессии в ссылке');
+            setGameSession(params.sessionId);
+        }
+    };
+
+    useEffect(() => {
+        checkStoreData();
+    }, [checkStoreData]);
 
     const handleQuestionUpdate = useCallback((questionChangeResult: IQuestionChangeResult) => {
-        console.log(`handleQuestionUpdate status: ${questionChangeResult.questionStatus}`);
         switch (questionChangeResult.questionStatus) {
             case "ACTIVE":
                 setCurrentQuestionStatus("ACTIVE");
@@ -51,18 +57,32 @@ function GameLayout() {
         }
     }, [currentGameSession, currentRound]);
 
-    const { subscribeOnChange } = useHybridQuestionRealtime(currentGameSession, handleQuestionUpdate);
+    const { subscribeOnQuestionChange } = useHybridQuestionRealtime(currentGameSession, handleQuestionUpdate);
     
     useEffect(() => {
-        subscribeOnChange();
-    }, [currentGameSession, currentRound, subscribeOnChange]);
+        subscribeOnQuestionChange();
+    }, [currentGameSession, currentRound, subscribeOnQuestionChange]);
+
+    const handleGameUpdate = useCallback((changeRoundResult: IRoundChangeResult) => {
+        if (changeRoundResult.openLiderboard) {
+            navigate(`/board/${currentGameSession}/leaderboard/`);
+        } else {
+            navigate(`/board/${currentGameSession}/${changeRoundResult.roundNumber}/`);
+        }
+    }, [currentGameSession, currentRound]);
+
+    const { subscribeOnRoundChange } = useHybridRoundRealtime(currentGameSession, currentRound, handleGameUpdate);
+
+    useEffect(() => {
+        subscribeOnRoundChange();
+    }, [currentGameSession, currentRound, subscribeOnRoundChange]);
 
     return (
         <Fragment>
-            <DebugInfo />
+            <DebugInfo currentGameSession={currentGameSession} currentRound={currentRound} currentQuestion={currentQuestion} currentAnswer={currentAnswer} />
             <SpaceBetween>
-                <PlayersInfo />
-                <GameScore />
+                <PlayersInfo players={currentGameSessionPlayers} />
+                <GameScore score={currentScore}/>
             </SpaceBetween>
             <Outlet />
         </Fragment>
