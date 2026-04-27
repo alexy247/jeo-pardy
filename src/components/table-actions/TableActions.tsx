@@ -1,36 +1,27 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useCancellableFetch } from "../../hoocks/useCancellableFetch";
-import { useGameStore } from "../../store/useGameStore";
+import { useHybridRoundRealtime } from "../../hoocks/useHybridRoundRealtime";
 
 import CenteringHorizontal from "../ui/centering-horizontal-block/CenteringHorizontal";
 import LinkButton from "../actions/LinkButton";
 import ButtonType from "../actions/ButtonType";
+import { IBoardRow, SessionId } from "../../data/types";
 
-function TableActions() {
+interface ITableActions {
+    currentGameSession: SessionId;
+    currentRound: number;
+    roundsCount?: number;
+    rows?: IBoardRow;
+    nextRound: () => void;
+}
+
+function TableActions({ currentGameSession, currentRound, roundsCount, rows, nextRound }: ITableActions) {
     const navigate = useNavigate();
     const [boardFinished, setBoardFinished] = useState<boolean>(false);
     const [gameFinished, setGameFinished] = useState<boolean>(false);
-    const [roundsCount, setRoundsCount] = useState<number>();
-    const { currentBoard, currentRound, currentGameSession, nextRound, loadRounds, currentSessionNumberOfRounds } = useGameStore();
 
-    const rows = currentBoard?.rows;
-
-    const abortControllerRef = useRef<AbortController>();
-
-    useCancellableFetch(async (signal) => {
-        abortControllerRef.current = new AbortController();
-        if (currentSessionNumberOfRounds == undefined) {
-            console.log('Мы не знаем сколько раундов будет в игре, подгружаем');
-            loadRounds(signal)
-                .then((data) => {
-                    setRoundsCount(data?.length);
-                })
-        } else {
-            setRoundsCount(currentSessionNumberOfRounds);
-        }
-    }, [currentSessionNumberOfRounds, currentRound]);
+    const { openRound } = useHybridRoundRealtime(currentGameSession);
 
     useEffect(() => {
         let extrasCount = 0;
@@ -47,17 +38,20 @@ function TableActions() {
     }, [currentRound, roundsCount, boardFinished]);
 
 
-    const onButtonClick = () => {
+    const onButtonClick = async () => {
         nextRound();
         const nextRoundValue = currentRound + 1;
-        navigate(`/board/${currentGameSession}/${nextRoundValue}`);
+        await openRound(nextRoundValue)
+            .finally(() => {
+                navigate(`/board/${currentGameSession}/${nextRoundValue}`)
+            });
     };
 
     return boardFinished && 
         <CenteringHorizontal isBottom>
             {gameFinished
                 ? <LinkButton to={`/board/${currentGameSession}/leaderboard`} title={"Итоги"} label={"Итоги"} />
-                : <ButtonType label="Следующий раунд" type="button" onClick={onButtonClick}/>
+                : <ButtonType label="Следующий раунд" type="button" onClick={() => onButtonClick()}/>
             }
         </CenteringHorizontal>;
 }

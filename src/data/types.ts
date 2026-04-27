@@ -70,3 +70,8 @@ export interface IPlayer {
 export interface IPlayerWithScore extends IPlayer {
     score: number;
 }
+
+export interface IRoundChangeResult {
+    roundNumber?: number;
+    openLiderboard?: boolean;
+}

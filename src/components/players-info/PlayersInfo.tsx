@@ -1,16 +1,9 @@
-import { useRef, useState } from "react";
 import { IPlayer } from "../../data/types";
-import { useGameStore } from "../../store/useGameStore";
 
 import './PlayersInfo.css';
-import { useCancellableFetch } from "../../hoocks/useCancellableFetch";
-
 
 interface IPlayerItemProps {
     player: IPlayer;
-}
-interface IPlayersInfoProps {
-    playersList: IPlayer[];
 }
 
 const PlayerItem = ({ player }: IPlayerItemProps) => {
@@ -21,7 +14,11 @@ const PlayerItem = ({ player }: IPlayerItemProps) => {
     );
 }
 
-const PlayersList = ({ playersList }: IPlayersInfoProps) => {
+interface IPlayersListProps {
+    playersList: IPlayer[];
+}
+
+const PlayersList = ({ playersList }: IPlayersListProps) => {
     return (
         <ul className="players-list">
             {playersList.map((player) => (
@@ -33,26 +30,12 @@ const PlayersList = ({ playersList }: IPlayersInfoProps) => {
     );
 }
 
-function PlayersInfo() {
-    const { loadPlayers } = useGameStore();
-    const [players, setPlayers] = useState<IPlayer[]>();
+interface IPlayersInfoProps {
+    players?: IPlayer[]; 
+}
 
-    const abortControllerRef = useRef<AbortController>();
-    
-    useCancellableFetch(async (signal) => {
-        abortControllerRef.current = new AbortController();
-        loadPlayers(signal)
-            .then(res => setPlayers(res))
-            .catch(() => {
-                // TODO: добавить страницу с ошибкой
-            });
-    }, [loadPlayers]);
-
-    return (
-            <>
-                {players && <PlayersList playersList={players} />}
-            </>
-    );
+function PlayersInfo({ players }: IPlayersInfoProps) {
+    return players && <PlayersList playersList={players} />;
 
 }
 

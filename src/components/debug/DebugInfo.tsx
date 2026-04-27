@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
-import { useGameStore } from "../../store/useGameStore";
 
 import ButtonType from "../actions/ButtonType";
 
 import classNames from "classnames";
 
 import './DebugInfo.css';
+import { IAnswer, IQuestion, SessionId } from "../../data/types";
 
+interface IDebugDataProps {
+    currentGameSession: SessionId;
+    currentRound: number;
+    currentQuestion?: IQuestion;
+    currentAnswer?: IAnswer; 
+}
 
-const DebugInfo = () => {
+const DebugInfo = ({ currentGameSession, currentRound, currentQuestion, currentAnswer }: IDebugDataProps) => {
     const { user } = useGame();
-    const { currentGameSession, currentRound, currentQuestion, currentAnswer } = useGameStore();
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     const clickHandler = () => {
@@ -24,7 +29,7 @@ const DebugInfo = () => {
 
     return (
         <div className="debug-wrapper">
-            <ButtonType label={"?"} title={"Информация для отладки"} onClick={clickHandler} />
+            <ButtonType label={"?"} title={"Информация для отладки"} onClick={() => clickHandler()} />
             <div className={debugInfoClasses}>
                 userEmail: {user?.email}<br/>
                 gameSession: {currentGameSession}<br/>

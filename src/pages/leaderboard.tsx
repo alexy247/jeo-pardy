@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useGameStore } from "../store/useGameStore";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 import { IPlayerWithScore } from "../data/types";
+import { useHybridRoundRealtime } from "../hoocks/useHybridRoundRealtime";
 
 import CenteringHorizontal from "../components/ui/centering-horizontal-block/CenteringHorizontal";
 import SlidingBlock from "../components/ui/sliding-block/SlidingBlock";
@@ -15,19 +16,25 @@ import LeaderboardItem from "../components/leaderboard-item/leaderboard-item";
 function Leaderboard() {
     const navigate = useNavigate();
     const { currentGameSession, loadPlayersWithScore, reset } = useGameStore();
+    const { openLidearboard } = useHybridRoundRealtime(currentGameSession);
+    
     const [leaderboard, setLeaderboard] = useState<IPlayerWithScore[]>();
 
     const abortControllerRef = useRef<AbortController>();
 
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
-        loadPlayersWithScore(signal)
-            .then((data) => {
-                setLeaderboard(data);
+
+        Promise.all([openLidearboard(), loadPlayersWithScore(signal)])
+            .then((values) => {
+                if (values[0] && values[1]) {
+                    setLeaderboard(values[1]);
+                }
             });
     }, [currentGameSession]);
 
     const onButtonClick = () => {
+        // TODO: Поменять статус у игровой сессии в БД
         reset();
         navigate(`/packs`);
     };
