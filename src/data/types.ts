@@ -9,6 +9,13 @@ export interface IPack {
 
 export type SessionId = string;
 
+export type SessionName = string;
+
+export interface SessionData {
+    id: SessionId;
+    name: SessionName;
+}
+
 export type CategoryName = string;
 
 export interface ICategory {

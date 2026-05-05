@@ -5,11 +5,13 @@ import { IPack } from "../data/types";
 
 import LinkButton from "../components/actions/LinkButton";
 import SpaceBetween from "../components/ui/space-between/SpaceBetween";
+import ListItem from "../components/ui/ul-list/list-item/ListItem";
+import UlList from "../components/ui/ul-list/UlList";
 
-
-export const Packs = () => {
+const Packs = () => {
     const { isLoading, loadPacks } = useGameStore();
     const [ packs, setPacks] = useState<IPack[]>();
+
     const abortControllerRef = useRef<AbortController>();
 
     useCancellableFetch(async (signal) => {
@@ -34,30 +36,48 @@ export const Packs = () => {
     if (isLoading) return <div>Loading packs...</div>;
 
     return (
-        <div>
+        <>
             <SpaceBetween>
                 <>
                     <h1>Допустимые паки</h1>
                     <LinkButton to={'createPack'} label="Создать свой"/>
                 </>
             </SpaceBetween>
-            <ul>
+            <UlList size="small">
+                <ListItem key={0} withSeparator>
+                        <SpaceBetween>
+                            <div>
+                                Название
+                            </div>
+                            <div>
+                                Автор
+                            </div>
+                            <div>
+                                Дата создания
+                            </div>
+                            <div>
+                                Действие
+                            </div>
+                        </SpaceBetween>
+                    </ListItem>
                 {packs && packs.map((item) => (
-                    <li key={item.id}>
-                        <div>
-                            {item.name}
-                        </div>
-                        <div>
-                            {item.authorName}
-                        </div>
-                        <div>
-                            {item.created.getTime()}
-                        </div>
-                        <LinkButton to={`/createSession/${item.id}`} label={"Начать игру"}/>
-                    </li>
+                    <ListItem key={item.id} withSeparator>
+                        <SpaceBetween>
+                            <div>
+                                {item.name}
+                            </div>
+                            <div>
+                                {item.authorName}
+                            </div>
+                            <div>
+                                {item.created.toLocaleDateString()}
+                            </div>
+                            <LinkButton to={`/createSession/${item.id}`} label={"Начать игру"}/>
+                        </SpaceBetween>
+                    </ListItem>
                 ))}
-            </ul>
-        </div>
+            </UlList>
+        </>
     );
 }
 
