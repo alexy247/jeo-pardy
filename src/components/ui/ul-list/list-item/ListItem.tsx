@@ -1,8 +1,21 @@
+import { ReactNode } from 'react';
+
+import classNames from 'classnames';
+
 import './ListItem.css';
 
-function ListItem({ children }: any) {
+interface IListItemProps {
+    withSeparator?: boolean;
+    children: ReactNode;
+}
+
+function ListItem({ withSeparator = false, children }: IListItemProps) {
+    const liClasses = classNames("item", {
+        '__with-separator': withSeparator
+    });
+
     return (
-        <li className="item">
+        <li className={liClasses}>
             {children}
         </li>
     );

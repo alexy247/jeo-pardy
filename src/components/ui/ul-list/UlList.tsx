@@ -1,8 +1,21 @@
+import { ReactNode } from 'react';
+
+import classNames from 'classnames';
+
 import './UlList.css';
 
-function UlList({ children }: any) {
+export type UlListSize = 'small' | 'large';
+
+interface IUlListProps {
+    size?: UlListSize;
+    children: ReactNode;
+}
+
+function UlList({ size = 'large', children }: IUlListProps) {
+    const ulClasses = classNames("ul-list", `__${size}`);
+    
     return (
-        <ul className="ul-list">
+        <ul className={ulClasses}>
             {children}
         </ul>
     );

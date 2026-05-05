@@ -11,10 +11,11 @@ import PlayersInfo from '../players-info/PlayersInfo';
 import GameScore from '../game-scrore/GameScore';
 import SpaceBetween from '../ui/space-between/SpaceBetween';
 import { useHybridRoundRealtime } from '../../hoocks/useHybridRoundRealtime';
+import GameName from '../game-name/GameName';
 
 function GameLayout() {
     const params = useParams();
-    const { currentGameSession, setGameSession, currentRound, currentQuestion, currentAnswer, setCurrentQuestionStatus, currentGameSessionPlayers, currentScore, error } = useGameStore();
+    const { currentGameSession, currentGameSessionName, setGameSession, currentRound, currentQuestion, currentAnswer, setCurrentQuestionStatus, currentGameSessionPlayers, currentScore, error } = useGameStore();
     const navigate = useNavigate();
 
     if (error) {
@@ -82,6 +83,7 @@ function GameLayout() {
             <DebugInfo currentGameSession={currentGameSession} currentRound={currentRound} currentQuestion={currentQuestion} currentAnswer={currentAnswer} />
             <SpaceBetween>
                 <PlayersInfo players={currentGameSessionPlayers} />
+                <GameName name={currentGameSessionName} />
                 <GameScore score={currentScore}/>
             </SpaceBetween>
             <Outlet />

@@ -1,3 +1,9 @@
-.ul-list {
+.ul-list {}
+
+.ul-list.__small {
+    font-size: 20px;
+}
+
+.ul-list.__large {
     font-size: 50px;
 }

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
-import { IAnswer, IBoard, IPack, IPlayer, IPlayerWithScore, IQuestion, IRound, QuestionStatus, SessionId } from '../data/types';
+import { IAnswer, IBoard, IPack, IPlayer, IPlayerWithScore, IQuestion, IRound, QuestionStatus, SessionId, SessionName } from '../data/types';
 import { convertSQLResultToPacks } from '../data/packsConverter';
 import { convertSQLResultToRounds } from '../data/roundsConverter';
-import { convertSQLResultToSessionId } from '../data/sessionConverter';
+import { convertSQLResultToSessionData } from '../data/sessionConverter';
 import { convertSQLResultToBoardRound } from '../data/boardRoundConverter';
 import { convertSQLResultToQuestion } from '../data/questionConverter';
 import { convertSQLResultToAnswer } from '../data/answerConverter';
@@ -17,6 +17,8 @@ interface GameStore {
     packs: IPack[];
     
     currentGameSession: SessionId;
+    // Заполняется только при вызове createSession
+    currentGameSessionName: SessionName;
     currentSessionRounds: IRound[];
     currentSessionNumberOfRounds: number | undefined;
     currentRound: number;
@@ -49,6 +51,8 @@ interface GameStore {
     loadPlayersWithScore: (signal?: AbortSignal) => Promise<IPlayerWithScore[] | undefined>;
 
     createSession: (user: User, packId: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
+    
+    searchGame: (name: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
 
     abortRequest: (key: string) => void;
     abortAllRequests: () => void;
@@ -78,6 +82,7 @@ interface ILoadSupabaseDataParams<T, K> {
 const initialState = {
     packs: [],
     currentGameSession: '',
+    currentGameSessionName: '',
     currentSessionRounds: [],
     currentSessionNumberOfRounds: undefined,
     currentRound: 0,
@@ -276,10 +281,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
             functionName: 'create_session',
             argsObj: { authorid: user.id , packid: packId},
             callBackFunc: (data) => {
-                const currentGameSessionConverted = convertSQLResultToSessionId(data[0]);
-                set({ currentGameSession: currentGameSessionConverted });
+                const currentGameSessionDataConverted = convertSQLResultToSessionData(data[0]);
+                set({ currentGameSession: currentGameSessionDataConverted.id, currentGameSessionName: currentGameSessionDataConverted.name });
                 
-                return currentGameSessionConverted;
+                return currentGameSessionDataConverted.id;
+            },
+            externalSignal: externalSignal,
+        });
+    },
+
+    searchGame: async (name, externalSignal) => {
+        return get().loadSupabaseData<any, SessionId>({
+            requestKey: `searchGame:${name}`,
+            functionName: 'search_game',
+            argsObj: { value: name },
+            callBackFunc: (data) => {
+                const currentGameSessionDataConverted = convertSQLResultToSessionData(data[0]);
+
+                return currentGameSessionDataConverted.id;
             },
             externalSignal: externalSignal,
         });

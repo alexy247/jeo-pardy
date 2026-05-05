@@ -15,6 +15,7 @@ import CreatePack from './pages/createPack';
 import GameLayout from './components/game-layout/GameLayout';
 import ConectionLayout from './components/connection-layout/ConnectionLayout';
 import Leaderboard from './pages/leaderboard';
+import SearchGame from './pages/search';
 
 import GameProvider from './context/GameContext';
 
@@ -37,6 +38,10 @@ function App(): JSX.Element {
               <Route path="createPack">
                 <Route index element={<CreatePack />} />
               </Route>
+            </Route>
+
+            <Route path="search" element={<ConectionLayout />}>
+              <Route index element={<SearchGame />} />
             </Route>
 
             <Route path="registration" element={<ConectionLayout />}>

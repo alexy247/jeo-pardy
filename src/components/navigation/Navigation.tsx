@@ -14,8 +14,13 @@ function Navigation() {
                     </Link>
                 </li>
                 <li className="li">
-                    <Link to="/categories" title="Категории" className="li_link">
-                        Категории
+                    <Link to="/packs" title="Паки" className="li_link">
+                        Паки
+                    </Link>
+                </li>
+                <li className="li">
+                    <Link to="/search" title="Найти игру" className="li_link">
+                        Найти игру
                     </Link>
                 </li>
                 {
