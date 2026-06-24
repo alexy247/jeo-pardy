@@ -1,0 +1,19 @@
+.icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.icon-button-img {
+    color: var(--color-white);
+}
+
+.icon-button-img.__20 {
+    height: 20px;
+}
+
+.icon-button-img.__40 {
+    height: 40px;
+}
