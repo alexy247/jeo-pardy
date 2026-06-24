@@ -1,0 +1,29 @@
+.create-question-form {
+    background: var(--color-dark-blue);
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid var(--color-white);
+    position: relative;
+}
+
+.create-question-form_header {
+    margin-top: 0;
+}
+
+.page-change-button {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.page-change-button:active, .page-change-button:focus, .page-change-button:hover {
+    color: var(--color-yellow);
+}
+
+.close-button {
+    position: absolute;
+    top: 28px; /* 20px + (36px - 20px) / 2 */
+    right: 20px;
+}
