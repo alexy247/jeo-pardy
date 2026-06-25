@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-deploy:
     # Указываем, что задача выполняется на вашем self-hosted раннере
-    runs-on: [self-hosted, linux, arm64]  # или просто [self-hosted]
+    runs-on: [self-hosted, linux, X64]  # или просто [self-hosted]
     
     # Ограничиваем права для безопасности
     permissions:
