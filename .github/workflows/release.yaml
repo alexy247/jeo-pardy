@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          npm ci --only=production || true  # Для production-сборки
+          npm ci
 
       # 3.1. Проверяем совместимость версий Node.js
       - name: Check Node.js version compatibility
