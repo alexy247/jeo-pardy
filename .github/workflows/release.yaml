@@ -50,22 +50,22 @@ jobs:
       # 5. Останавливаем старый контейнер (если есть)
       - name: Stop old container
         run: |
-          docker stop my-app || true
-          docker rm my-app || true
+          docker stop jeo-pardy-app || true
+          docker rm jeo-pardy-app || true
       
       # 6. Собираем новый Docker-образ
       - name: Build Docker image
         run: |
-          docker build -t my-app:latest .
+          docker build -t jeo-pardy-app:latest .
       
       # 7. Запускаем новый контейнер
       - name: Run new container
         run: |
           docker run -d \
-            --name my-app \
+            --name jeo-pardy-app \
             --restart always \
             -p 8080:80 \
-            my-app:latest
+            jeo-pardy-app:latest
       
       # 8. Проверяем, что приложение работает
       - name: Health check
