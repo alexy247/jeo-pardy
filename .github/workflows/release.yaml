@@ -22,9 +22,9 @@ jobs:
       
       # 2. Устанавливаем Node.js (если еще не установлен на NAS)
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: 22
       
       # 3. Устанавливаем зависимости
       - name: Install dependencies
