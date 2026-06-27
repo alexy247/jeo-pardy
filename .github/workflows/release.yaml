@@ -71,5 +71,5 @@ jobs:
       - name: Health check
         run: |
           sleep 5
-          curl -f http://localhost:8082 || exit 1
+          curl -f https://jeopardy-app.synology.me/ || exit 1
           echo "✅ Application deployed successfully!"
