@@ -43,6 +43,10 @@ jobs:
       # 4. Собираем приложение
       - name: Build project
         run: |
+          export VITE_APP_SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
+          export VITE_APP_SUPABASE_ANON_KEY="${{ secrets.SUPABASE_KEY }}"
+          export VITE_REACT_APP_TINYBIRD_HOST="${{ secrets.TINYBIRD_HOST }}"
+          export VITE_REACT_APP_TINYBIRD_APPEND_TOKEN="${{ secrets.TINYBIRD_APPEND_TOKEN }}"
           npm run build
           # Проверяем, что сборка прошла успешно
           ls -la dist/
@@ -71,5 +75,5 @@ jobs:
       - name: Health check
         run: |
           sleep 5
-          curl -f https://jeopardy-app.synology.me/ || exit 1
+          curl -f ${{ secrets.NAS_APP_URL }} || exit 1
           echo "✅ Application deployed successfully!"
