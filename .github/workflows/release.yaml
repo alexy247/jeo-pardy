@@ -43,10 +43,6 @@ jobs:
       # 4. Собираем приложение
       - name: Build project
         run: |
-          export VITE_APP_SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
-          export VITE_APP_SUPABASE_ANON_KEY="${{ secrets.SUPABASE_KEY }}"
-          export VITE_REACT_APP_TINYBIRD_HOST="${{ secrets.TINYBIRD_HOST }}"
-          export VITE_REACT_APP_TINYBIRD_APPEND_TOKEN="${{ secrets.TINYBIRD_APPEND_TOKEN }}"
           npm run build
           # Проверяем, что сборка прошла успешно
           ls -la dist/
@@ -60,7 +56,12 @@ jobs:
       # 6. Собираем новый Docker-образ
       - name: Build Docker image
         run: |
-          docker build -t jeo-pardy-app:latest .
+          docker build \
+          --build-arg VITE_APP_SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+          --build-arg VITE_APP_SUPABASE_ANON_KEY="${{ secrets.SUPABASE_KEY }}" \
+          --build-arg VITE_REACT_APP_TINYBIRD_HOST="${{ secrets.TINYBIRD_HOST }}" \
+          --build-arg VITE_REACT_APP_TINYBIRD_APPEND_TOKEN="${{ secrets.TINYBIRD_APPEND_TOKEN }}" \
+          -t jeo-pardy-app:latest .
       
       # 7. Запускаем новый контейнер
       - name: Run new container
