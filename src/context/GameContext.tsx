@@ -3,12 +3,15 @@ import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
 import { isDevMode } from '../lib/enviromentUtils';
 
-export const GameContext = createContext<GameContextType>({});
+export const GameContext = createContext<GameContextType>({
+    isAuthenticated: false,
+});
 
 export const useGame = () => useContext(GameContext);
 
 interface GameContextType {
   user?: User | null;
+  isAuthenticated: boolean;
   signIn?: (email: string, password: string) => Promise<boolean>;
   signUp?: (email: string, password: string, userName: string) => Promise<boolean>;
 }
@@ -65,6 +68,7 @@ export const GameProvider = ({ children }: any) => {
 
     const contextValue = useMemo(() => ({
         user,
+        isAuthenticated: !!user,
         signIn,
         signUp
     }), [user, signIn, signUp]);
