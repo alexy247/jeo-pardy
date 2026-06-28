@@ -36,7 +36,6 @@ function Answer() {
 
     return (
         <>
-            Ответ {params.anwserId}
             {answer && 
                 <>
                     <HeaderFirst>
