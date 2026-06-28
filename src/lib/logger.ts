@@ -1,4 +1,5 @@
 import { SessionId } from "../data/types";
+import { isDevMode } from "./enviromentUtils";
 
 type logLevel = 'info' | 'warn' | 'error' | 'debug';
 
@@ -17,7 +18,7 @@ export async function sendLog(logData: ILoggerData) {
         service: 'jeo-pardy',
         message: logData.message,
         request_id: logData.component,
-        environment: import.meta.env.VITE_NODE_ENV,
+        environment: isDevMode ? 'develoment' : 'production',
         status_code: 200,
         response_time: 1,
         request_method: 'sendLog',

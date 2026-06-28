@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../context/GameContext";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 
 import CenteringBlock from "../components/ui/centering-block/CenteringBlock";
 import InputField from "../components/ui/input-field/InputField";
@@ -16,6 +16,8 @@ const START_PAGE = '/packs';
 function Registration() {
     const { user, signUp } = useGame();
     const navigate = useNavigate();
+
+    const [error, setError] = useState<string | null>(null);
 
     if (user) {
         navigate(START_PAGE);
@@ -35,7 +37,11 @@ function Registration() {
         const passValue = pass.value;
 
         if (emailValue != undefined && passValue != undefined) {
-            signUp!(emailValue, passValue, userNameValue).then((success) => success ?? navigate(START_PAGE));
+            signUp!(emailValue, passValue, userNameValue)
+                .then((success) => success ?? navigate(START_PAGE))
+                .catch((err) => {
+                    setError(err.message);
+                });
         }
     };
 
@@ -55,6 +61,7 @@ function Registration() {
                             type="password"
                             label="Пароль"
                 />
+                {error && <p>{error}</p>}
                 <ButtonsContainer>
                     <ButtonType label="Сохранить" type="submit"/>
                     <LinkButton label="Войти" to="/login"/>

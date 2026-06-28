@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/auth-js';
+import { isDevMode } from '../lib/enviromentUtils';
 
 export const GameContext = createContext<GameContextType>({});
 
@@ -19,7 +20,7 @@ export const GameProvider = ({ children }: any) => {
     useEffect(() => {
         // Проверка текущей сессии
         supabase.auth.getSession().then(({ data: { session } }) => {
-            console.log(JSON.stringify(session));
+            isDevMode && console.log(JSON.stringify(session));
             return setUserContext(session?.user ?? null);
         })
     
@@ -27,7 +28,7 @@ export const GameProvider = ({ children }: any) => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (event, session) => {
             setUserContext(session?.user ?? null);
-            console.log(JSON.stringify(event));
+            isDevMode && console.log(JSON.stringify(event));
           }
         )
     
@@ -37,6 +38,9 @@ export const GameProvider = ({ children }: any) => {
     const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
         return await supabase.auth.signInWithPassword({ email, password })
             .then(res => {
+                if (res.error) {
+                    return Promise.reject(res.error);
+                }
                 setUserContext(res.data.user);
                 return Promise.resolve(true);
             })
@@ -47,11 +51,16 @@ export const GameProvider = ({ children }: any) => {
     const signUp = useCallback(async (email: string, password: string, userName: string): Promise<boolean> => {
         return await supabase.auth.signUp({ email, password, options: { data: { userName: userName } } })
             .then(res => {
+                if (res.error) {
+                    return Promise.reject(res.error);
+                }
                 setUserContext(res.data.user);
                 return Promise.resolve(true);
             })
             // TODO: show error
-            .catch(err => Promise.reject(err));
+            .catch(err => {
+                return  Promise.reject(err);
+            });
     }, []);
 
     const contextValue = useMemo(() => ({

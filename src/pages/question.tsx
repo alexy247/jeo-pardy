@@ -37,7 +37,6 @@ function Question() {
 
     return (
         <>
-            Вопрос {params.questionId},
             {question &&
                 <>
                     <HeaderFirst>
