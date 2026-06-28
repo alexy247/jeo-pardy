@@ -1,4 +1,4 @@
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../context/GameContext";
 
@@ -16,6 +16,8 @@ function Login() {
     const { user, signIn } = useGame();
     const navigate = useNavigate();
 
+    const [error, setError] = useState<string | null>(null);
+
     if (user) {
         navigate(START_PAGE);
     }
@@ -32,7 +34,11 @@ function Login() {
         const passValue = pass.value;
 
         if (emailValue != undefined && passValue != undefined) {
-            signIn!(emailValue, passValue).then((success) => success ?? navigate(START_PAGE));
+            signIn!(emailValue, passValue)
+                .then((success) => success ?? navigate(START_PAGE))
+                .catch((err) => {
+                    setError(err.message);
+                });
         }
     };
 
@@ -48,6 +54,7 @@ function Login() {
                             type="password"
                             label="Пароль"
                 />
+                {error && <p>{error}</p>}
                 <ButtonsContainer>
                     <ButtonType label="Войти" type="submit"/>
                     <LinkButton label="Регистрация" to="/registration"/>
