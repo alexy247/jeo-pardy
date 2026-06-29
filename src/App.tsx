@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+import { ModalRenderer } from '@patch-kit/modal';
+
 import Main from './pages/main';
 import Board from './pages/board';
 import Categories from './pages/categories';
@@ -12,6 +14,7 @@ import Packs from './pages/packs';
 import Registration from './pages/registration';
 import CreateSession from './pages/createSession';
 import CreatePack from './pages/createPack';
+import GameBuilder from './pages/gameBuilder';
 import GameLayout from './components/game-layout/GameLayout';
 import ConectionLayout from './components/connection-layout/ConnectionLayout';
 import Leaderboard from './pages/leaderboard';
@@ -35,8 +38,11 @@ function App(): JSX.Element {
 
             <Route path="packs" element={<ConectionLayout />}>
               <Route index element={<Packs />} />
-              <Route path="createPack">
-                <Route index element={<CreatePack />} />
+              <Route path="create" element={<CreatePack />} />
+              <Route path="builder" element={<GameBuilder />}>
+                  <Route path=":packId">
+                    <Route index element={<GameBuilder />} />
+                  </Route>
               </Route>
             </Route>
 
@@ -82,6 +88,7 @@ function App(): JSX.Element {
 
         </Routes> 
       </BrowserRouter>
+      <ModalRenderer />
     </GameProvider>
   )
 }

@@ -1,10 +1,9 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import classNames from "classnames";
+import TableData from "../table-data/tableData";
 
 import './TableLinkData.css';
-
 
 interface ILinkProps {
     children: ReactNode;
@@ -13,15 +12,12 @@ interface ILinkProps {
 }
 
 function TableLinkData({ children, href, isVisited }: ILinkProps) {
-    const classes = classNames("table-data", {
-        ["__visited"]: isVisited
-    });
     return (
-        <td className={classes}>
+        <TableData isVisited={isVisited}>
             <Link to={href} className="table-data-link">
                 {children}
             </Link>
-        </td>
+        </TableData>
     );
 }
 

@@ -15,7 +15,7 @@ import GameName from '../game-name/GameName';
 
 function GameLayout() {
     const params = useParams();
-    const { currentGameSession, currentGameSessionName, setGameSession, currentRound, currentQuestion, currentAnswer, setCurrentQuestionStatus, currentGameSessionPlayers, currentScore, error } = useGameStore();
+    const { currentUserId, currentGameSession, currentGameSessionName, setGameSession, currentRound, currentQuestion, currentAnswer, setCurrentQuestionStatus, currentGameSessionPlayers, currentScore, error } = useGameStore();
     const navigate = useNavigate();
 
     if (error) {
@@ -80,7 +80,7 @@ function GameLayout() {
 
     return (
         <Fragment>
-            <DebugInfo currentGameSession={currentGameSession} currentRound={currentRound} currentQuestion={currentQuestion} currentAnswer={currentAnswer} />
+            <DebugInfo currentUserId={currentUserId} currentGameSession={currentGameSession} currentRound={currentRound} currentQuestion={currentQuestion} currentAnswer={currentAnswer} />
             <SpaceBetween>
                 <PlayersInfo players={currentGameSessionPlayers} />
                 <GameName name={currentGameSessionName} />

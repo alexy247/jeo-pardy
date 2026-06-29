@@ -14,6 +14,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@patch-kit/modal": "^1.1.0",
     "@supabase/supabase-js": "^2.95.3",
     "classnames": "^2.5.1",
     "react": "^18.3.1",

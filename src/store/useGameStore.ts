@@ -12,8 +12,9 @@ import { convertSQLResultToPlayers } from '../data/playersConverter';
 import { convertSQLResultToScore } from '../data/scoreConverter';
 import { sendLog } from '../lib/logger';
 import { convertSQLResultToPlayersWithScore } from '../data/playersWithScoreConverter';
+import { ILoadSupabaseDataParams, IStoreWithLoadFromSupabase } from './storeTypes';
 
-interface GameStore {
+interface GameStore extends IStoreWithLoadFromSupabase {
     packs: IPack[];
     
     currentGameSession: SessionId;
@@ -30,13 +31,7 @@ interface GameStore {
 
     currentGameSessionPlayers: IPlayer[] | undefined;
     currentLeaderboard: IPlayerWithScore[] | undefined;
-
-    isLoading: boolean;
-    error: string | null;
-
-    activeRequests: Map<string, AbortController>;
-
-    logger: (message: string) => void;
+    currentUserId: string,
 
     loadPacks: (signal?: AbortSignal) => Promise<IPack[] | undefined>;
     loadRounds: (signal?: AbortSignal) => Promise<IRound[] | undefined>;
@@ -54,29 +49,13 @@ interface GameStore {
     
     searchGame: (name: string, signal?: AbortSignal) => Promise<SessionId | undefined>;
 
-    abortRequest: (key: string) => void;
-    abortAllRequests: () => void;
-
-    loadSupabaseData: <T, K>(params: ILoadSupabaseDataParams<T, K>) => Promise<K | undefined>;
-
     nextRound: () => void;
     setRound: (value: number) => void;
     setGameSession: (value: string) => void;
     setCurrentQuestion: (value: IQuestion) => void;
     setCurrentQuestionStatus: (value: QuestionStatus) => void;
 
-    setLoading: (loading: boolean) => void;
-    setError: (error: string | null) => void;
-    
-    reset: () => void;
-}
-
-interface ILoadSupabaseDataParams<T, K> {
-    requestKey: string,
-    functionName: string,
-    argsObj?: object,
-    callBackFunc: (data: T) => K,
-    externalSignal?: AbortSignal,
+    setCurrentUserId: (value: string) => void;
 }
 
 const initialState = {
@@ -89,6 +68,7 @@ const initialState = {
     currentScore: 0,
     currentGameSessionPlayers: undefined,
     currentLeaderboard: undefined,
+    currentUserId: 'anonym',
     isLoading: false,
     error: null,
 
@@ -101,7 +81,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     logger: (message) => sendLog({
         level: 'debug',
-        userId: 'anonym',
+        userId: get().currentUserId,
         sessionId: get().currentGameSession,
         component: 'useGameStore',
         message: message
@@ -121,7 +101,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
 
     loadPacks: async (externalSignal) => {
-        return get().loadSupabaseData<any, IPack[]>({
+        return get().loadSupabaseData<any, IPack[] | undefined>({
             requestKey: 'loadPacks:public',
             functionName: 'load_enabled_packs',
             callBackFunc: (data) => {
@@ -163,7 +143,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             callBackFunc: (data) => {
                 const boardRoundConverted = convertSQLResultToBoardRound(data);
 
-                set({ currentBoard: boardRoundConverted || [] });
+                set({ currentBoard: boardRoundConverted || [], currentUserId: user.id });
 
                 return boardRoundConverted;
             },
@@ -231,7 +211,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             argsObj:  { sessionid: currentGameSession, userid: user.id },
             callBackFunc: (data) => {
                 const scoreConverted = convertSQLResultToScore(data);
-                set({ currentScore: scoreConverted });
+                set({ currentScore: scoreConverted, currentUserId: user.id });
 
                 return scoreConverted;
             },
@@ -250,7 +230,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             argsObj:  { sessionid: currentGameSession, userid: user.id, value: price || 0},
             callBackFunc: (data) => {
                 const scoreConverted = convertSQLResultToScore(data);
-                set({ currentScore: scoreConverted });
+                set({ currentScore: scoreConverted, currentUserId: user.id });
 
                 return scoreConverted;
             },
@@ -282,7 +262,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             argsObj: { authorid: user.id , packid: packId},
             callBackFunc: (data) => {
                 const currentGameSessionDataConverted = convertSQLResultToSessionData(data[0]);
-                set({ currentGameSession: currentGameSessionDataConverted.id, currentGameSessionName: currentGameSessionDataConverted.name });
+                set({ currentGameSession: currentGameSessionDataConverted.id, currentGameSessionName: currentGameSessionDataConverted.name, currentUserId: user.id });
                 
                 return currentGameSessionDataConverted.id;
             },
@@ -353,6 +333,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     setGameSession: (value: string) => { set({currentGameSession: value}) },
     setCurrentQuestion: (value: IQuestion) => { set({ currentQuestion: value}) },
     setCurrentQuestionStatus: (value: QuestionStatus) => { set({ currentQuestionStatus: value}) },
+
+    setCurrentUserId: (currentUserId) => { set({ currentUserId }) },
 
     setLoading: (loading) => set({ isLoading: loading }),
     setError: (error) => set({ error }),

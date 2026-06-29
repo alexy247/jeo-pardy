@@ -5,13 +5,17 @@ import classNames from 'classnames';
 import './ListItem.css';
 
 interface IListItemProps {
-    withSeparator?: boolean;
     children: ReactNode;
+    withSeparator?: boolean;
+    isActive?: boolean;
+    isHorizontal?: boolean;
 }
 
-function ListItem({ withSeparator = false, children }: IListItemProps) {
+function ListItem({ withSeparator = false, isActive = false, isHorizontal = false, children }: IListItemProps) {
     const liClasses = classNames("item", {
-        '__with-separator': withSeparator
+        '__with-separator': withSeparator,
+        '__is-active': isActive,
+        '__horizontal': isHorizontal,
     });
 
     return (

@@ -17,7 +17,7 @@ const Packs = () => {
 
     const abortControllerRef = useRef<AbortController>();
 
-    const rowAction = (packId: number) => {
+    const rowAction = (packId: string) => {
         if (isAuthenticated) {
             return <LinkButton to={`/createSession/${packId}`} label={"Начать игру"}/>;
         }

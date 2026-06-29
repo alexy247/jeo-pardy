@@ -1,7 +1,9 @@
 import { IMediaObject } from "../interfaces/MediaObject";
 
+export type PackId = string;
+
 export interface IPack {
-    id: number,
+    id: PackId,
     name: string,
     authorName: string,
     created: Date,
@@ -18,8 +20,10 @@ export interface SessionData {
 
 export type CategoryName = string;
 
+export type CategoryId = string;
+
 export interface ICategory {
-    id: string,
+    id: CategoryId,
     title: CategoryName,
 }
 
@@ -45,6 +49,14 @@ export interface IBoard {
     roundName: RoundName;
     categoriesNames: CategoryName[];
     rows: IBoardRow;
+}
+
+export type INewBoardRow = Map<CategoryId, IBoardItem[]>;
+
+export interface INewBoard {
+    roundName: RoundName;
+    categories: ICategory[];
+    rows: INewBoardRow;
 }
 
 export type QuestionId = string;
@@ -81,4 +93,9 @@ export interface IPlayerWithScore extends IPlayer {
 export interface IRoundChangeResult {
     roundNumber?: number;
     openLiderboard?: boolean;
+}
+
+export interface ICreatePackResult {
+    packId: PackId;
+    roundId: number;
 }

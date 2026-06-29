@@ -1,9 +1,22 @@
 .item {
     display: block;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .item.__with-separator {
     border-bottom: 1px solid var(--color-white);
     padding: 20px 0 20px 0;
+}
+
+.item.__is-active {
+    color: var(--color-yellow);
+}
+
+.item.__horizontal {
+    display: inline-block;
+}
+
+.item.__horizontal + .item.__horizontal {
+    margin-left: 8px;
 }

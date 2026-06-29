@@ -7,3 +7,6 @@
 .ul-list.__large {
     font-size: 50px;
 }
+.ul-list.__without-padding {
+    padding: 0;
+}

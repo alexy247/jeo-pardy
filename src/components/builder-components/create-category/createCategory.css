@@ -1,0 +1,17 @@
+.new-category-form {
+    font-size: 30px;
+}
+
+.new-category-input {
+    background-color: transparent;
+    border: none;
+    font-size: inherit;
+    color: var(--color-white);
+}
+
+.new-category-input:focus,
+.new-category-input:focus-visible,
+.new-category-input:active {
+    border: none;
+    outline: none;
+}
