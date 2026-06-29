@@ -9,13 +9,14 @@ import './DebugInfo.css';
 import { IAnswer, IQuestion, SessionId } from "../../data/types";
 
 interface IDebugDataProps {
+    currentUserId: string;
     currentGameSession: SessionId;
     currentRound: number;
     currentQuestion?: IQuestion;
     currentAnswer?: IAnswer; 
 }
 
-const DebugInfo = ({ currentGameSession, currentRound, currentQuestion, currentAnswer }: IDebugDataProps) => {
+const DebugInfo = ({ currentUserId, currentGameSession, currentRound, currentQuestion, currentAnswer }: IDebugDataProps) => {
     const { user } = useGame();
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -31,6 +32,7 @@ const DebugInfo = ({ currentGameSession, currentRound, currentQuestion, currentA
         <div className="debug-wrapper">
             <ButtonType label={"?"} title={"Информация для отладки"} onClick={() => clickHandler()} />
             <div className={debugInfoClasses}>
+                currentUserId: {currentUserId}, {user?.id}<br/>
                 userEmail: {user?.email}<br/>
                 gameSession: {currentGameSession}<br/>
                 currentRound: {currentRound}<br/>

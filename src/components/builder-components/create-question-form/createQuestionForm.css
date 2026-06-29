@@ -1,0 +1,42 @@
+.create-question-form {
+    position: relative;
+    background: var(--color-dark-blue);
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid var(--color-white);
+    width: calc(100vw - 400px);
+    height: 300px;
+}
+
+.create-question-form_header {
+    margin-top: 0;
+}
+
+.page-change-button {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: medium;
+}
+
+.page-change-button:active, .page-change-button:focus, .page-change-button:hover {
+    color: var(--color-yellow);
+}
+
+.create-question-form_radio-block {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.close-button {
+    position: absolute;
+    top: 28px; /* 20px + (36px - 20px) / 2 */
+    right: 20px;
+}
+
+.submit-button {
+    margin-top: 10px;
+}

@@ -45,8 +45,8 @@ function Question() {
                     <HeaderSecond>
                         {question?.text}
                     </HeaderSecond>
-                        <MediaBlock mediaObject={question} />
-                        <AnswerForm question={question} />
+                    <MediaBlock mediaObject={question} />
+                    <AnswerForm question={question} />
                 </>
             }
         </>

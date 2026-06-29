@@ -6,6 +6,10 @@
     margin: 0 auto 10px auto;
 }
 
+.row.__is-wide {
+    width: auto;
+}
+
 .label {
     color: var(--color-yellow);
 }

@@ -5,12 +5,13 @@ import { useGameStore } from "../store/useGameStore";
 import { CategoryName, IBoardItem } from "../data/types";
 import { useGame } from "../context/GameContext";
 
-import TableLinkData from "../components/table/table-link-data/TableLinkData";
-import TableHeader from "../components/table/table-header/TableHeader";
-import TableRow from "../components/table/table-row/TableRow";
-import Table from "../components/table/table/Table";
+import TableLinkData from "../components/ui/table/table-link-data/TableLinkData";
+import TableHeader from "../components/ui/table/table-header/TableHeader";
+import TableRow from "../components/ui/table/table-row/TableRow";
+import Table from "../components/ui/table/table/Table";
 import HeaderFirst from "../components/header/header-first/HeaderFirst";
 import TableActions from "../components/table-actions/TableActions";
+import CenteringBlock from "../components/ui/centering-block/CenteringBlock";
 
 function Board() {
     const params = useParams();
@@ -83,23 +84,25 @@ function Board() {
             <HeaderFirst>
                 Таблица с игрой - {roundName}
             </HeaderFirst>
-            <Table>
-                {categories.map((category) => (
-                    <TableRow key={category}>
-                        <TableHeader>
-                            {category}
-                        </TableHeader>
-                        {rows.get(category)!.map((boardItem) => (
-                            <TableLinkData key={boardItem.questionId}
-                                href={`question/${boardItem.questionId}`}
-                                isVisited={boardItem.questionStatus == 'FINISHED'}
-                            >
-                                {boardItem.price}
-                            </TableLinkData>
-                        ))}
-                    </TableRow>
-                ))}
-            </Table>
+            <CenteringBlock size="large">
+                <Table>
+                    {categories.map((category) => (
+                        <TableRow key={category}>
+                            <TableHeader>
+                                {category}
+                            </TableHeader>
+                            {rows.get(category)!.map((boardItem) => (
+                                <TableLinkData key={boardItem.questionId}
+                                    href={`question/${boardItem.questionId}`}
+                                    isVisited={boardItem.questionStatus == 'FINISHED'}
+                                >
+                                    {boardItem.price}
+                                </TableLinkData>
+                            ))}
+                        </TableRow>
+                    ))}
+                </Table>
+            </CenteringBlock>
             <TableActions currentGameSession={currentGameSession} currentRound={currentRound} roundsCount={currentSessionNumberOfRounds} rows={rows} nextRound={nextRound} />
         </>
     );

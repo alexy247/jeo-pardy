@@ -7,12 +7,15 @@ import './UlList.css';
 export type UlListSize = 'small' | 'large';
 
 interface IUlListProps {
-    size?: UlListSize;
     children: ReactNode;
+    size?: UlListSize;
+    isWitoutPadding?: boolean;
 }
 
-function UlList({ size = 'large', children }: IUlListProps) {
-    const ulClasses = classNames("ul-list", `__${size}`);
+function UlList({ size = 'large', children, isWitoutPadding = false }: IUlListProps) {
+    const ulClasses = classNames("ul-list", `__${size}`, {
+        '__without-padding': isWitoutPadding
+    });
     
     return (
         <ul className={ulClasses}>
