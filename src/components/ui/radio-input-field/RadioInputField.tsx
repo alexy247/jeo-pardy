@@ -1,8 +1,11 @@
 import classNames from 'classnames';
+
+import { forwardRef, InputHTMLAttributes, useId } from 'react';
+
 import './RadioInputField.css';
 
-interface IRadioInputFieldProps {
-    id: string;
+
+interface IRadioInputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     name: string;
     value: string;
     label: string;
@@ -10,7 +13,9 @@ interface IRadioInputFieldProps {
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }   
 
-const RadioInputField = ({ id, name, value, label, checked, onChange }: IRadioInputFieldProps) => {
+const RadioInputField = forwardRef<HTMLInputElement, IRadioInputFieldProps>(
+    ({ name, value, label, checked, onChange }, ref) => {
+    const id = useId();
     const itemClasses = classNames('radio-input-item', {
         '__checked': checked
     });
@@ -20,6 +25,7 @@ const RadioInputField = ({ id, name, value, label, checked, onChange }: IRadioIn
                 className='radio-input-field'
                 type='radio'
                 id={id}
+                ref={ref}
                 name={name}
                 value={value}
                 checked={checked}
@@ -30,6 +36,6 @@ const RadioInputField = ({ id, name, value, label, checked, onChange }: IRadioIn
             </label>
         </div>
     );
-};
+});
 
 export default RadioInputField;

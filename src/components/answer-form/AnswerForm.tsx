@@ -32,9 +32,9 @@ function AnswerForm({ question }: IAnswerFormProps) {
     const [falseStartActive, setfalseStartActive] = useState(false);
     const [firstTimerEnded, setFirstTimerEnded] = useState(false);
 
-    const questionId = question.id;
+    const answerRef = useRef<HTMLInputElement>(null);
 
-    const ANSWER_INPUT_ID = `jeo-qid-${questionId}`;
+    const questionId = question.id;
 
     const abortControllerRef = useRef<AbortController>();
 
@@ -77,11 +77,10 @@ function AnswerForm({ question }: IAnswerFormProps) {
         event.stopPropagation();
         event.preventDefault();
 
-        const formElement = event.target as HTMLElement;
-        const answerEl = formElement.querySelector(`#${ANSWER_INPUT_ID}`) as HTMLInputElement;
+        const answerVal = answerRef.current?.value;
 
-        if (answer && answerEl.value && user) {
-            const success: boolean = answer.answerText.toLocaleLowerCase() == answerEl.value.toLocaleLowerCase();
+        if (answer && answerVal && user) {
+            const success: boolean = answer.answerText.toLocaleLowerCase() == answerVal.toLocaleLowerCase();
             updateScore(user, success)
                 .then(() => {
                     if (success) {
@@ -108,7 +107,7 @@ function AnswerForm({ question }: IAnswerFormProps) {
         } else if (firstTimerEnded && !falseStartActive && !inputVisible && currentQuestionStatus === 'ACTIVE') {
             setAnswerButtonVisible(true);
         }
-    }, [currentQuestionStatus, answerButtonVisible, setAnswerButtonVisible]);
+    }, [currentQuestionStatus, answerButtonVisible]);
 
     useEffect(() => {
         let timerId: any;
@@ -129,7 +128,7 @@ function AnswerForm({ question }: IAnswerFormProps) {
                 {answerButtonVisible && (<ButtonType label="Ответить" type="button" onClick={onAnswerButtonClick}/>)}
                 {inputVisible &&
                     <form onSubmit={onFormSubmit}>
-                        <InputField id={ANSWER_INPUT_ID} label="Ответ" type="text" autofocus={true} />
+                        <InputField ref={answerRef} label="Ответ" type="text" autofocus={true} />
                         <ButtonsContainer>
                             <ButtonType label="Сохранить" type="submit"/>
                         </ButtonsContainer>

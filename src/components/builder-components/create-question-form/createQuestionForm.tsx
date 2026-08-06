@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { ICategory } from "../../../data/types";
 import { isMediaTypeWithUrl, labelByMediaType, MediaType, parseToMediaType } from "../../../interfaces/MediaObject";
 import { useCreateGameStore } from "../../../store/useCreateGameStore";
@@ -25,12 +25,6 @@ enum FormPage {
     'ANSWER' = 2,
 }
 
-const QUESTION_TEXT_INPUT_ID = 'question-text-input';
-const QUESTION_MEDIA_URL_INPUT_ID = 'question-media-url-input';
-
-const ANSWER_TEXT_INPUT_ID = 'answer-text-input';
-const ANSWER_MEDIA_URL_INPUT_ID = 'answer-media-url-input';
-
 const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: ICreateQuestionProps) => {
     const { createQuestion } = useCreateGameStore();
 
@@ -47,9 +41,15 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
         setAnswerMediaType(parseToMediaType(event.target.value));
     };
 
+    const questionTextRef = useRef<HTMLInputElement>(null);
+    const questionMediaUrlRef = useRef<HTMLInputElement>(null);
+
+    const answerTextRef = useRef<HTMLInputElement>(null);
+    const answerMediaUrlRef = useRef<HTMLInputElement>(null);
+
     const questionPage = (
         <div>category: {category.title}, packId: {packId}, roundId: {roundId}, price: {price}
-                <InputField id={QUESTION_TEXT_INPUT_ID}
+                <InputField ref={questionTextRef}
                             type="text"
                             label="Текст вопроса"
                             isWide
@@ -58,7 +58,6 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
                 <div className="create-question-form_radio-block">
                     {Object.values(MediaType).map((mediaType) => (
                         <RadioInputField
-                            id={`question-media-type-${mediaType}`}
                             name="question-media-type"
                             value={mediaType}
                             label={labelByMediaType(mediaType)}
@@ -68,7 +67,7 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
                     ))}
                 </div>
                 {isMediaTypeWithUrl(questionMediaType) && 
-                    <InputField id={QUESTION_MEDIA_URL_INPUT_ID}
+                    <InputField ref={questionMediaUrlRef}
                                 type="text"
                                 label="Ссылка на медиа"
                                 isWide
@@ -79,7 +78,7 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
 
     const answerPage = (
         <div>category: {category.title}, packId: {packId}, roundId: {roundId}, price: {price}
-                <InputField id={ANSWER_TEXT_INPUT_ID}
+                <InputField ref={answerTextRef}
                             type="text"
                             label="Текст ответа"
                             isWide
@@ -88,7 +87,6 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
                 <div className="create-question-form_radio-block">
                     {Object.values(MediaType).map((mediaType) => (
                         <RadioInputField
-                            id={`answer-media-type-${mediaType}`}
                             name="answer-media-type"
                             value={mediaType}
                             label={labelByMediaType(mediaType)}
@@ -98,7 +96,7 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
                     ))}
                 </div>
                 {isMediaTypeWithUrl(answerMediaType) && 
-                    <InputField id={ANSWER_MEDIA_URL_INPUT_ID}
+                    <InputField ref={answerMediaUrlRef}
                                 type="text"
                                 label="Ссылка на медиа"
                                 isWide
@@ -119,21 +117,14 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
         event.stopPropagation();
         event.preventDefault();
 
-        const formElement = event.target as HTMLElement;
-        const questionText = formElement.querySelector(`#${QUESTION_TEXT_INPUT_ID}`) as HTMLInputElement;
-        const questionMediaUrl = formElement.querySelector(`#${QUESTION_MEDIA_URL_INPUT_ID}`) as HTMLInputElement;
+        const questionTextValue = questionTextRef.current?.value;
+        const questionMediaUrlValue = questionMediaUrlRef.current?.value;
 
-        const questionTextValue = questionText.value;
-        const questionMediaUrlValue = questionMediaUrl.value;
+        const answerTextValue = answerTextRef.current?.value;
+        const answerMediaUrlValue = answerMediaUrlRef.current?.value;
 
-        const answerText = formElement.querySelector(`#${ANSWER_TEXT_INPUT_ID}`) as HTMLInputElement;
-        const answerMediaUrl = formElement.querySelector(`#${ANSWER_MEDIA_URL_INPUT_ID}`) as HTMLInputElement;
-
-        const answerTextValue = answerText.value;
-        const answerMediaUrlValue = answerMediaUrl.value;
-
-        if (questionTextValue != undefined && answerTextValue != undefined) {
-            createQuestion(category.id, price, packId, roundId, questionTextValue, questionMediaType, questionMediaUrlValue, answerTextValue, answerMediaType, answerMediaUrlValue)
+        if (questionTextValue && answerTextValue) {
+            createQuestion(category.id, price, packId, roundId, questionTextValue, questionMediaType, answerTextValue, answerMediaType, questionMediaUrlValue, answerMediaUrlValue)
                 .then((success) => success && closeModal())
                 .catch((err) => {
                     setError(err.message);

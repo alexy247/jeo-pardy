@@ -24,3 +24,4 @@ dist-ssr
 *.sln
 *.sw?
 tsconfig.app.tsbuildinfo
+TODO.md

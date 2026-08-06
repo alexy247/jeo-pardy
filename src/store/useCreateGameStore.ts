@@ -27,7 +27,7 @@ interface CreateGameStore extends IStoreWithLoadFromSupabase {
     createCategory: (name: string, signal?: AbortSignal) => Promise<ICategory | undefined>;
     deleteCategory: (categoryId: string, signal?: AbortSignal) => Promise<boolean | undefined>;
 
-    createQuestion: (categoryId: CategoryId, price: number, packId: PackId, roundId: number, questionText: string, questionMediaType: MediaType, questionMediaUrl: string, answerText: string, answerMediaType: MediaType, answerMediaUrl: string, signal?: AbortSignal) => Promise<boolean | undefined>;
+    createQuestion: (categoryId: CategoryId, price: number, packId: PackId, roundId: number, questionText: string, questionMediaType: MediaType, answerText: string, answerMediaType: MediaType, questionMediaUrl?: string, answerMediaUrl?: string, signal?: AbortSignal) => Promise<boolean | undefined>;
     getPricesByRoundId: (roundId: number) => number[];
 }
 
@@ -137,7 +137,7 @@ export const useCreateGameStore = create<CreateGameStore>((set, get) => ({
         });
     },
     
-    createQuestion: async (categoryId, price, packId, roundId, questionText, questionMediaType, questionMediaUrl, answerText, answerMediaType, answerMediaUrl, externalSignal) => {
+    createQuestion: async (categoryId, price, packId, roundId, questionText, questionMediaType, answerText, answerMediaType, questionMediaUrl, answerMediaUrl, externalSignal) => {
         return get().loadSupabaseData<any, boolean | undefined>({
             requestKey: `createQuestion:${categoryId}`,
             functionName: 'create_new_question',

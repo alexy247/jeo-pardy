@@ -1,8 +1,10 @@
 import classNames from 'classnames';
+
+import { forwardRef, InputHTMLAttributes, useId } from 'react';
+
 import './InputField.css';
 
-interface IInputFieldProps {
-    id: string;
+interface IInputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     type: string;
     label: string;
     isWide?: boolean;
@@ -10,7 +12,9 @@ interface IInputFieldProps {
     autofocus?: boolean;
 }
 
-function InputField({ id, type, label, isWide = false, required = false, autofocus = false }: IInputFieldProps) {
+const InputField= forwardRef<HTMLInputElement, IInputFieldProps>(
+    ({ type, label, isWide = false, required = false, autofocus = false }, ref) => {
+    const id = useId();
     const rowClasses = classNames('row', {
         '__is-wide': isWide
     });
@@ -19,9 +23,9 @@ function InputField({ id, type, label, isWide = false, required = false, autofoc
             <label className='label' htmlFor={id}>
                 {label}
             </label>
-            <input className='input' type={type} id={id} autoFocus={autofocus} required={required} />
+            <input className='input' ref={ref} type={type} id={id} autoFocus={autofocus} required={required} />
         </div>
     );
-}
+});
 
 export default InputField;
