@@ -12,7 +12,7 @@ export const convertSQLResultToBoardRound = (response: Array<{round_name: string
 
         if (!categoriesNames) {
             categoriesNames = [item.category_name];
-        } else {
+        } else if (!categoriesNames.includes(item.category_name)) {
             categoriesNames.push(item.category_name);
         }
 

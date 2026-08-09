@@ -141,7 +141,7 @@ export const useCreateGameStore = create<CreateGameStore>((set, get) => ({
         return get().loadSupabaseData<any, boolean | undefined>({
             requestKey: `createQuestion:${categoryId}`,
             functionName: 'create_new_question',
-            argsObj:  { categoryid: categoryId, price: price, packid: packId, roundid: roundId, questiontext: questionText, questionmediatype: questionMediaType, questionmediaurl: questionMediaUrl, answertext: answerText, answermediatype: answerMediaType, answermediaurl: answerMediaUrl },
+            argsObj:  { categoryid: categoryId, price: price, packid: packId, roundid: roundId, questiontext: questionText, questionmediatype: questionMediaType, questionmediaurl: questionMediaUrl || '', answertext: answerText, answermediatype: answerMediaType, answermediaurl: answerMediaUrl || '' },
             callBackFunc: () => {
                 return true;
             },

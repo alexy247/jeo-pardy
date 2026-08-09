@@ -4,11 +4,10 @@ import { isMediaTypeWithUrl, labelByMediaType, MediaType, parseToMediaType } fro
 import { useCreateGameStore } from "../../../store/useCreateGameStore";
 
 import IconButton from "../../ui/icon-button/iconButton";
-import UlList from "../../ui/ul-list/UlList";
-import ListItem from "../../ui/ul-list/list-item/ListItem";
 import InputField from "../../ui/input-field/InputField";
 import RadioInputField from "../../ui/radio-input-field/RadioInputField";
 import ButtonType from "../../actions/ButtonType";
+import Tabs from "../../tabs/Tabs";
 
 import './CreateQuestionForm.css';
 
@@ -18,17 +17,12 @@ interface ICreateQuestionProps {
     roundId: number;
     price: number;
     closeModal: () => void;
+    onSuccess: () => Promise<void>;
 }
 
-enum FormPage {
-    'QUESTION' = 1,
-    'ANSWER' = 2,
-}
-
-const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: ICreateQuestionProps) => {
+const CreateQuestionForm = ({ category, packId, roundId, price, closeModal, onSuccess }: ICreateQuestionProps) => {
     const { createQuestion } = useCreateGameStore();
 
-    const [formPage, setFormPage] = useState<FormPage>(FormPage.QUESTION);
     const [questionMediaType, setQuestionMediaType] = useState<MediaType>(MediaType.TEXT);
     const [answerMediaType, setAnswerMediaType] = useState<MediaType>(MediaType.TEXT);
     const [error, setError] = useState<string | null>(null);
@@ -48,72 +42,65 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
     const answerMediaUrlRef = useRef<HTMLInputElement>(null);
 
     const questionPage = (
-        <div>category: {category.title}, packId: {packId}, roundId: {roundId}, price: {price}
-                <InputField ref={questionTextRef}
-                            type="text"
-                            label="Текст вопроса"
-                            isWide
-                            required
-                />
-                <div className="create-question-form_radio-block">
-                    {Object.values(MediaType).map((mediaType) => (
-                        <RadioInputField
-                            name="question-media-type"
-                            value={mediaType}
-                            label={labelByMediaType(mediaType)}
-                            checked={mediaType === questionMediaType}
-                            onChange={onMediaTypeQuestionChange}
-                        />
-                    ))}
-                </div>
-                {isMediaTypeWithUrl(questionMediaType) && 
-                    <InputField ref={questionMediaUrlRef}
-                                type="text"
-                                label="Ссылка на медиа"
-                                isWide
+        <div>
+            <InputField ref={questionTextRef}
+                        type="text"
+                        label="Текст вопроса"
+                        isWide
+                        autofocus
+            />
+            <div className="create-question-form_radio-block">
+                {Object.values(MediaType).map((mediaType) => (
+                    <RadioInputField
+                        key={mediaType}
+                        name="question-media-type"
+                        value={mediaType}
+                        label={labelByMediaType(mediaType)}
+                        checked={mediaType === questionMediaType}
+                        onChange={onMediaTypeQuestionChange}
                     />
-                }
+                ))}
+            </div>
+            <div className={`create-question-form_media-url-block ${isMediaTypeWithUrl(questionMediaType) ? '__visible' : '__hidden'}`}>
+                <InputField ref={questionMediaUrlRef}
+                            type="text"
+                            label="Ссылка на медиа"
+                            isWide
+                />
+            </div>
         </div>
     );
 
     const answerPage = (
-        <div>category: {category.title}, packId: {packId}, roundId: {roundId}, price: {price}
-                <InputField ref={answerTextRef}
-                            type="text"
-                            label="Текст ответа"
-                            isWide
-                            required
-                />
-                <div className="create-question-form_radio-block">
-                    {Object.values(MediaType).map((mediaType) => (
-                        <RadioInputField
-                            name="answer-media-type"
-                            value={mediaType}
-                            label={labelByMediaType(mediaType)}
-                            checked={mediaType === answerMediaType}
-                            onChange={onMediaTypeAnswerChange}
-                        />
-                    ))}
-                </div>
-                {isMediaTypeWithUrl(answerMediaType) && 
-                    <InputField ref={answerMediaUrlRef}
-                                type="text"
-                                label="Ссылка на медиа"
-                                isWide
+        <div>
+            <InputField ref={answerTextRef}
+                        type="text"
+                        label="Текст ответа"
+                        isWide
+            />
+            <div className="create-question-form_radio-block">
+                {Object.values(MediaType).map((mediaType) => (
+                    <RadioInputField
+                        key={mediaType}
+                        name="answer-media-type"
+                        value={mediaType}
+                        label={labelByMediaType(mediaType)}
+                        checked={mediaType === answerMediaType}
+                        onChange={onMediaTypeAnswerChange}
                     />
-                }
+                ))}
+            </div>
+            <div className={`create-question-form_media-url-block ${isMediaTypeWithUrl(answerMediaType) ? '__visible' : '__hidden'}`}>
+                <InputField ref={answerMediaUrlRef}
+                            type="text"
+                            label="Ссылка на медиа"
+                            isWide
+                />
+            </div>
         </div>
     );
 
-    const openQuestionPage = () => {
-        setFormPage(FormPage.QUESTION);
-    };
-
-    const openAnswerPage = () => {
-        setFormPage(FormPage.ANSWER);
-    };
-
-    const onFormSubmit = (event: FormEvent) => {
+    const onFormSubmit = async (event: FormEvent) => {
         event.stopPropagation();
         event.preventDefault();
 
@@ -125,7 +112,12 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
 
         if (questionTextValue && answerTextValue) {
             createQuestion(category.id, price, packId, roundId, questionTextValue, questionMediaType, answerTextValue, answerMediaType, questionMediaUrlValue, answerMediaUrlValue)
-                .then((success) => success && closeModal())
+                .then((success) => {
+                    if (success) {
+                        closeModal();
+                        onSuccess();
+                    }
+                })
                 .catch((err) => {
                     setError(err.message);
                 });
@@ -137,20 +129,14 @@ const CreateQuestionForm = ({ category, packId, roundId, price, closeModal }: IC
             <h2 className="create-question-form_header">
                 Создать вопрос за {price}
             </h2>
-            <UlList size="small" isWitoutPadding>
-                <ListItem key="question" isActive={formPage === FormPage.QUESTION} isHorizontal>
-                    <button className="page-change-button" onClick={() => openQuestionPage()}>
-                        Вопрос
-                    </button>
-                </ListItem>
-                <ListItem key="answer" isActive={formPage === FormPage.ANSWER} isHorizontal>
-                    <button className="page-change-button" onClick={() => openAnswerPage()}>
-                        Ответ
-                    </button>
-                </ListItem>
-            </UlList>
-            {formPage === FormPage.QUESTION ? questionPage : answerPage}
-            <IconButton className="close-button" size="20" iconName="close-icon" title="Закрыть" onClick={closeModal} />
+            <div>
+                category: {category.title}, packId: {packId}, roundId: {roundId}, price: {price}
+            </div>
+            <Tabs titles={['Вопрос', 'Ответ']} keys={['question', 'answer']}>
+                {questionPage}
+                {answerPage}
+            </Tabs>
+            <IconButton className="close-button" size="20" iconName="close-icon" title="Закрыть" onClick={() => closeModal()} />
             {error && <p>{error}</p>}
             <ButtonType className="submit-button" label="Сохранить" type="submit"/>
         </form>

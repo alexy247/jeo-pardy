@@ -12,7 +12,7 @@ interface IInputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     autofocus?: boolean;
 }
 
-const InputField= forwardRef<HTMLInputElement, IInputFieldProps>(
+const InputField = forwardRef<HTMLInputElement, IInputFieldProps>(
     ({ type, label, isWide = false, required = false, autofocus = false }, ref) => {
     const id = useId();
     const rowClasses = classNames('row', {
@@ -23,7 +23,7 @@ const InputField= forwardRef<HTMLInputElement, IInputFieldProps>(
             <label className='label' htmlFor={id}>
                 {label}
             </label>
-            <input className='input' ref={ref} type={type} id={id} autoFocus={autofocus} required={required} />
+            <input className='input' name={id} ref={ref} type={type} id={id} autoFocus={autofocus} required={required} />
         </div>
     );
 });

@@ -10,14 +10,20 @@ interface ICreateQuestionProps {
     packId: string;
     roundId: number;
     price: number;
+    onSuccess: () => Promise<void>;
 }
 
-const CreateQuestion = ({ category, packId, roundId, price }: ICreateQuestionProps) => {
+const CreateQuestion = ({ category, packId, roundId, price, onSuccess }: ICreateQuestionProps) => {
     const { showModal, closeModal } = useModal();
+
+    const handleSuccess = async () => {
+        closeModal();
+        await onSuccess();
+    };
 
     const handleOpenModal = () => {
         showModal(
-            <CreateQuestionForm category={category} packId={packId} roundId={roundId} price={price} closeModal={closeModal} />,
+            <CreateQuestionForm category={category} packId={packId} roundId={roundId} price={price} closeModal={closeModal} onSuccess={handleSuccess} />,
             { closeOnOutsideClick: true }
         );
     };

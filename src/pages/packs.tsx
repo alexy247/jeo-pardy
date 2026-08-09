@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "../store/useGameStore";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 import { IPack } from "../data/types";
-// import { isDevMode } from "../lib/enviromentUtils";
+import { isDevMode } from "../lib/enviromentUtils";
 import { useGame } from "../context/GameContext";
 
 import LinkButton from "../components/actions/LinkButton";
@@ -50,8 +50,7 @@ const Packs = () => {
             <SpaceBetween>
                 <>
                     <h1>Допустимые паки</h1>
-                    {/* {isDevMode && <LinkButton to={'createPack'} label="Создать свой"/>} */}
-                    <LinkButton to={'createPack'} label="Создать свой"/>
+                    {isDevMode && <LinkButton to={'createPack'} label="Создать свой"/>}
                 </>
             </SpaceBetween>
             <UlList size="small">

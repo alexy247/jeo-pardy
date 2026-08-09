@@ -10,14 +10,20 @@ interface IEditQuestionProps {
     packId: string;
     roundId: number;
     price: number;
+    onSuccess: () => Promise<void>;
 }
 
-const EditQuestion = ({ category, packId, roundId, price }: IEditQuestionProps) => {
+const EditQuestion = ({ category, packId, roundId, price, onSuccess }: IEditQuestionProps) => {
     const { showModal, closeModal } = useModal();
+
+    const handleSuccess = async () => {
+        closeModal();
+        await onSuccess();
+    };
 
     const handleOpenModal = () => {
         showModal(
-            <CreateQuestionForm category={category} packId={packId} roundId={roundId} price={price} closeModal={closeModal} />,
+            <CreateQuestionForm category={category} packId={packId} roundId={roundId} price={price} closeModal={closeModal} onSuccess={handleSuccess} />,
             { closeOnOutsideClick: true }
         );
     };

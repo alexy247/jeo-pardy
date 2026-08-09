@@ -1,0 +1,15 @@
+.tab-content {
+
+}
+
+.tab-content.__hidden {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    visibility: hidden;
+}
+
+.tab-content.__visible {
+    position: relative;
+    visibility: visible;
+}

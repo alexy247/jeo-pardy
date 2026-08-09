@@ -49,12 +49,10 @@ const GameBuilder = () => {
     const [isBoardFull, setIsBoardFull] = useState<boolean>(false);
 
     const prices = getPricesByRoundId(openRoundId);
-        
-    // Подгружаем доску
-    useCancellableFetch(async (signal) => {
-        abortControllerRef.current = new AbortController();
+    
+    const handleLoadNewGameRound = async (signal?: AbortSignal) => {
         if (params.packId && user) {
-            loadNewGameRound(params.packId, user, openRoundId, signal)
+            await loadNewGameRound(params.packId, user, openRoundId, signal)
                 .then((data) => {
                     if (data) {
                         setRoundName(data.roundName);
@@ -66,9 +64,15 @@ const GameBuilder = () => {
                 })
                 .catch(() => {
                     // TODO: добавить страницу с ошибкой
-                });
+                });;
         }
-    }, [currentPackId, openRoundId, user, currentRoundOrderNum, loadNewGameRound]);
+    };
+
+    // Подгружаем доску
+    useCancellableFetch(async (signal) => {
+        abortControllerRef.current = new AbortController();
+        handleLoadNewGameRound(signal);
+    }, [params.packId, user]);
 
     const onButtonClick = () => {
         setOpenRoundId(openRoundId + 1);
@@ -80,7 +84,7 @@ const GameBuilder = () => {
                 if (!rows.has(category.id)) {
                     return (
                         <TableData key={price}>
-                            <CreateQuestion category={category} packId={params.packId!} roundId={openRoundId} price={price} />
+                            <CreateQuestion category={category} packId={params.packId!} roundId={openRoundId} price={price} onSuccess={handleLoadNewGameRound} />
                         </TableData>
                     );
                 }
@@ -88,13 +92,13 @@ const GameBuilder = () => {
                     const boardItem = rows.get(category.id)!.filter(item => item.price == price)[0];
                     return (
                         <TableData key={price}>
-                            <EditQuestion category={category} packId={params.packId!} roundId={openRoundId} price={boardItem.price} />
+                            <EditQuestion category={category} packId={params.packId!} roundId={openRoundId} price={boardItem.price} onSuccess={handleLoadNewGameRound} />
                         </TableData>
                     );
                 } else {
                     return (
                         <TableData key={price}>
-                            <CreateQuestion category={category} packId={params.packId!} roundId={openRoundId} price={price} />
+                            <CreateQuestion category={category} packId={params.packId!} roundId={openRoundId} price={price} onSuccess={handleLoadNewGameRound} />
                         </TableData>
                     );
                 }
@@ -167,6 +171,7 @@ const GameBuilder = () => {
                                             addToMap={addToMap}
                                             currentPackId={params.packId}
                                             currentRoundId={openRoundId}
+                                            onSuccess={handleLoadNewGameRound}
                             />
                         </TableHeader>
                     </TableRow>
