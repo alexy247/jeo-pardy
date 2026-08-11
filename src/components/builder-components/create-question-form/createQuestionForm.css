@@ -40,3 +40,16 @@
 .submit-button {
     margin-top: 10px;
 }
+
+.create-question-form_media-url-block {
+
+}
+
+.create-question-form_media-url-block.__hidden {
+    display: none;
+
+}
+
+.create-question-form_media-url-block.__visible {
+    display: block;
+}

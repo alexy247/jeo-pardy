@@ -35,7 +35,7 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Копируем кастомный конфиг Nginx (опционально)
-# COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
 # Открываем порт 80 (стандартный порт Nginx)
 EXPOSE 80

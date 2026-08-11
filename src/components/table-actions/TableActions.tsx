@@ -33,6 +33,7 @@ function TableActions({ currentGameSession, currentRound, roundsCount, rows, nex
 
     useEffect(() => {
         if (currentRound + 1 == roundsCount) {
+            // Сделать проверку на то, что все вопросы в раунде закончены, и если да, то показывать кнопку "Итоги"
             setGameFinished(boardFinished);
         }
     }, [currentRound, roundsCount, boardFinished]);

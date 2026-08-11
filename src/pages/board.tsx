@@ -91,7 +91,7 @@ function Board() {
                             <TableHeader>
                                 {category}
                             </TableHeader>
-                            {rows.get(category)!.map((boardItem) => (
+                            {rows.get(category)!.sort((a, b) => a.price - b.price).map((boardItem) => (
                                 <TableLinkData key={boardItem.questionId}
                                     href={`question/${boardItem.questionId}`}
                                     isVisited={boardItem.questionStatus == 'FINISHED'}

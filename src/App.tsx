@@ -19,6 +19,7 @@ import GameLayout from './components/game-layout/GameLayout';
 import ConectionLayout from './components/connection-layout/ConnectionLayout';
 import Leaderboard from './pages/leaderboard';
 import SearchGame from './pages/search';
+import ErrorBoundaryWithStore from './errors/ErrorBoundaryWithStore';
 
 import GameProvider from './context/GameContext';
 
@@ -27,69 +28,71 @@ import './App.css';
 
 function App(): JSX.Element {
   return (
-    <GameProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Main />} />
-            <Route path="login">
-              <Route index element={<Login />} />
-            </Route>
-
-            <Route path="packs" element={<ConectionLayout />}>
-              <Route index element={<Packs />} />
-              <Route path="create" element={<CreatePack />} />
-              <Route path="builder" element={<GameBuilder />}>
-                  <Route path=":packId">
-                    <Route index element={<GameBuilder />} />
-                  </Route>
+    <BrowserRouter>
+      <GameProvider>
+        <ErrorBoundaryWithStore>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Main />} />
+              <Route path="login">
+                <Route index element={<Login />} />
               </Route>
-            </Route>
 
-            <Route path="search" element={<ConectionLayout />}>
-              <Route index element={<SearchGame />} />
-            </Route>
-
-            <Route path="registration" element={<ConectionLayout />}>
-              <Route index element={<Registration />} />
-            </Route>
-
-            <Route path="createSession" element={<ConectionLayout />}>
-              <Route path=":packId">
-                <Route index element={<CreateSession />} />
+              <Route path="packs" element={<ConectionLayout />}>
+                <Route index element={<Packs />} />
+                <Route path="create" element={<CreatePack />} />
+                <Route path="builder" element={<GameBuilder />}>
+                    <Route path=":packId">
+                      <Route index element={<GameBuilder />} />
+                    </Route>
+                </Route>
               </Route>
-            </Route>
 
-            <Route path="categories" element={<GameLayout />}>
-              <Route path=":sessionId">
-                <Route index element={<Categories />} />
+              <Route path="search" element={<ConectionLayout />}>
+                <Route index element={<SearchGame />} />
               </Route>
-            </Route>
 
-              <Route path="board" element={<GameLayout />}>
+              <Route path="registration" element={<ConectionLayout />}>
+                <Route index element={<Registration />} />
+              </Route>
+
+              <Route path="createSession" element={<ConectionLayout />}>
+                <Route path=":packId">
+                  <Route index element={<CreateSession />} />
+                </Route>
+              </Route>
+
+              <Route path="categories" element={<GameLayout />}>
                 <Route path=":sessionId">
-                  <Route path="leaderboard" element={<Leaderboard />}/>
-                  <Route path=":roundOrder">
-                    <Route index element={<Board />} />
-                    <Route path="question">
-                      <Route path=":questionId">
-                        <Route index element={<Question />} />
-                        <Route path="answer">
-                          <Route index element={<Answer />} />
+                  <Route index element={<Categories />} />
+                </Route>
+              </Route>
+
+                <Route path="board" element={<GameLayout />}>
+                  <Route path=":sessionId">
+                    <Route path="leaderboard" element={<Leaderboard />}/>
+                    <Route path=":roundOrder">
+                      <Route index element={<Board />} />
+                      <Route path="question">
+                        <Route path=":questionId">
+                          <Route index element={<Question />} />
+                          <Route path="answer">
+                            <Route index element={<Answer />} />
+                          </Route>
                         </Route>
                       </Route>
                     </Route>
                   </Route>
                 </Route>
-              </Route>
-          </Route>
+            </Route>
 
-          <Route path='*' element={<EmptyPage/> } />
+            <Route path='*' element={<EmptyPage/> } />
 
-        </Routes> 
-      </BrowserRouter>
+          </Routes> 
+        </ErrorBoundaryWithStore>
+      </GameProvider>
       <ModalRenderer />
-    </GameProvider>
+    </BrowserRouter>
   )
 }
 

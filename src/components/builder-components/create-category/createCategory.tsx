@@ -1,30 +1,31 @@
-import { FormEvent } from "react";
+import { FormEvent, useRef } from "react";
 import { ICategory } from "../../../data/types";
 
 import './createCategory.css';
-
-const NEW_CATEGORY_NAME_ID = `new-category-name-id`;
 
 interface ICreateCategoryProps {
     currentPackId?: string;
     currentRoundId: number;
     createCategory: (name: string) => Promise<ICategory | undefined>;
     addToMap: (packId: string, roundId: number, item: ICategory) => void;
+    onSuccess: () => Promise<void>;
 }
 
-const CreateCategory = ( { currentPackId, currentRoundId, createCategory, addToMap }: ICreateCategoryProps ) => {
+const CreateCategory = ( { currentPackId, currentRoundId, createCategory, addToMap, onSuccess }: ICreateCategoryProps ) => {
+    const categoryRef = useRef<HTMLInputElement>(null);
+
     const onFormSubmit = async (event: FormEvent) => {
         event.stopPropagation();
         event.preventDefault();
 
-        const formElement = event.target as HTMLElement;
-        const categoryNameEl = formElement.querySelector(`#${NEW_CATEGORY_NAME_ID}`) as HTMLInputElement;
+        const categoryName = categoryRef.current?.value;
 
-        if (categoryNameEl && categoryNameEl.value) {
-            createCategory(categoryNameEl.value)
+        if (categoryName) {
+            createCategory(categoryName)
                 .then((category) => {
                     if (category && currentPackId) {
                         addToMap(currentPackId, currentRoundId, category);
+                        return onSuccess();
                     }
                 })
                 .catch((res) => {
@@ -35,7 +36,7 @@ const CreateCategory = ( { currentPackId, currentRoundId, createCategory, addToM
 
     return (
         <form className="new-category-form" onSubmit={onFormSubmit}>
-            <input id={NEW_CATEGORY_NAME_ID} className="new-category-input" type="text" placeholder="Добавить категорию" title="Добавить категорию" />
+            <input ref={categoryRef} className="new-category-input" type="text" placeholder="Добавить категорию" title="Добавить категорию" />
         </form>
     );
 };

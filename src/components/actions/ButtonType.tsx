@@ -13,7 +13,7 @@ function ButtonType({ label, title, type = 'button', className, onClick }: IButt
     const buttonClassNames = classNames("action", className);
 
     return (
-        <button title={title} type={type} className={buttonClassNames} onClick={onClick}>
+        <button title={title} aria-label={label} type={type} className={buttonClassNames} onClick={onClick}>
             {label}
         </button>
     );
