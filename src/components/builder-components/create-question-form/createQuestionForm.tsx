@@ -9,7 +9,7 @@ import RadioInputField from "../../ui/radio-input-field/RadioInputField";
 import ButtonType from "../../actions/ButtonType";
 import Tabs from "../../tabs/Tabs";
 
-import './CreateQuestionForm.css';
+import './createQuestionForm.css';
 
 interface ICreateQuestionProps {
     category: ICategory;
