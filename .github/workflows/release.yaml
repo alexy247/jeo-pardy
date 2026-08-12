@@ -7,10 +7,8 @@ on:
 
 jobs:
   build-and-deploy:
-    # Указываем, что задача выполняется на вашем self-hosted раннере
-    runs-on: [self-hosted, linux, X64]  # или просто [self-hosted]
-    
-    # Ограничиваем права для безопасности
+    runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
@@ -19,62 +17,73 @@ jobs:
       # 1. Клонируем репозиторий с кодом
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      # 2. Устанавливаем Node.js (если еще не установлен на NAS)
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: 22
-      
-      # 3. Устанавливаем зависимости
-      - name: Install dependencies
-        run: |
-          npm install
-          npm ci
 
-      # 3.1. Проверяем совместимость версий Node.js
-      - name: Check Node.js version compatibility
-        run: |
-          echo "Running on Node.js $(node -v)"
-          npm --version
-          # Проверяем, что все зависимости совместимы
-          npm ls --depth=0 || true
+      # 2. Настраиваем Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+       # 3. Логинимся в GitHub Container Registry
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
-      # 4. Собираем приложение
-      - name: Build project
-        run: |
-          npm run build
-          # Проверяем, что сборка прошла успешно
-          ls -la dist/
+      # 4. Собираем и пушим образ в реестр
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ github.actor }}/jeo-pardy-app:latest
+            ${{ github.actor }}/jeo-pardy-app:${{ github.sha }}
+          build-args: |
+            VITE_APP_SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+            VITE_APP_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_KEY }}
+            VITE_REACT_APP_TINYBIRD_HOST=${{ secrets.TINYBIRD_HOST }}
+            VITE_REACT_APP_TINYBIRD_APPEND_TOKEN=${{ secrets.TINYBIRD_APPEND_TOKEN }}
+
+
+      # 5. Деплой на NAS через SSH
+      - name: Deploy to Synology NAS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NAS_IP }}
+          username: ${{ secrets.NAS_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          # Опционально: проверка fingerprint хоста (рекомендуется)
+          fingerprint: ${{ secrets.NAS_SSH_FINGERPRINT }}
+          script: |
+            # Логируем деплой
+            echo "🚀 Starting deployment on NAS"
+            
+            # Переходим в папку с приложением
+            cd /volume1/docker/jeo-pardy-app || exit 1
+            
+            # Скачиваем новый образ
+            docker pull ${{ github.actor }}/jeo-pardy-app:latest
+            
+            # Останавливаем старый контейнер
+            docker stop jeo-pardy-app 2>/dev/null || true
+            docker rm jeo-pardy-app 2>/dev/null || true
+            
+            # Запускаем новый контейнер с правильными переменными окружения
+            docker run -d \
+              --name jeo-pardy-app \
+              --restart always \
+              -p 8082:80 \
+              ${{ github.actor }}/jeo-pardy-app:latest
       
-      # 5. Останавливаем старый контейнер (если есть)
-      - name: Stop old container
-        run: |
-          docker stop jeo-pardy-app || true
-          docker rm jeo-pardy-app || true
-      
-      # 6. Собираем новый Docker-образ
-      - name: Build Docker image
-        run: |
-          docker build \
-          --build-arg VITE_APP_SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-          --build-arg VITE_APP_SUPABASE_ANON_KEY="${{ secrets.SUPABASE_KEY }}" \
-          --build-arg VITE_REACT_APP_TINYBIRD_HOST="${{ secrets.TINYBIRD_HOST }}" \
-          --build-arg VITE_REACT_APP_TINYBIRD_APPEND_TOKEN="${{ secrets.TINYBIRD_APPEND_TOKEN }}" \
-          -t jeo-pardy-app:latest .
-      
-      # 7. Запускаем новый контейнер
-      - name: Run new container
-        run: |
-          docker run -d \
-            --name jeo-pardy-app \
-            --restart always \
-            -p 8082:80 \
-            jeo-pardy-app:latest
-      
-      # 8. Проверяем, что приложение работает
+      # 6. Проверяем, что приложение работает
       - name: Health check
         run: |
           sleep 5
-          curl -f ${{ secrets.NAS_APP_URL }} || exit 1
-          echo "✅ Application deployed successfully!"
+            if curl -f http://localhost:8082; then
+              echo "✅ Deployment successful!"
+            else
+              echo "❌ Health check failed!"
+              exit 1
+            fi
