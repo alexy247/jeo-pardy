@@ -54,8 +54,7 @@ jobs:
           username: ${{ secrets.NAS_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          # Опционально: проверка fingerprint хоста (рекомендуется)
-          fingerprint: ${{ secrets.NAS_SSH_FINGERPRINT }}
+          debug: true
           script: |
             # Логируем деплой
             echo "🚀 Starting deployment on NAS"
