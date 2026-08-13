@@ -49,7 +49,7 @@ jobs:
       - name: Debug SSH connection
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.NAS_HOST }}
+          host: ${{ secrets.NAS_IP }}
           username: ${{ secrets.NAS_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.NAS_GITHUB_PORT }}
@@ -97,7 +97,7 @@ jobs:
       - name: Health check
         run: |
           sleep 5
-          if curl -f http://localhost:8082; then
+          if curl -f ${{ secrets.NAS_APP_URL }}; then
             echo "✅ Deployment successful!"
           else
             echo "❌ Health check failed!"
