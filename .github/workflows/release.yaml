@@ -45,6 +45,20 @@ jobs:
             VITE_REACT_APP_TINYBIRD_HOST=${{ secrets.TINYBIRD_HOST }}
             VITE_REACT_APP_TINYBIRD_APPEND_TOKEN=${{ secrets.TINYBIRD_APPEND_TOKEN }}
 
+      # Дебаг SSH соединения перед деплоем
+      - name: Debug SSH connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NAS_IP }}
+          username: ${{ secrets.NAS_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.NAS_GITHUB_PORT }}
+          debug: true
+          script: |
+            echo "SSH connection successful!"
+            echo "Current user: $(whoami)"
+            echo "Docker version: $(docker --version 2>&1)"
+            echo "Running containers: $(docker ps -a 2>&1)"
 
       # 5. Деплой на NAS через SSH
       - name: Deploy to Synology NAS
@@ -53,7 +67,7 @@ jobs:
           host: ${{ secrets.NAS_IP }}
           username: ${{ secrets.NAS_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: 22
+          port: ${{ secrets.NAS_GITHUB_PORT }}
           debug: true
           script: |
             # Логируем деплой
