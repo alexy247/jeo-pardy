@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCancellableFetch } from "../hoocks/useCancellableFetch";
 import { useGameStore } from "../store/useGameStore";
@@ -27,58 +27,111 @@ function Board() {
     const [categories, setCategories] = useState<string[]>([])
     const [rows, setBoardRows] = useState<Map<CategoryName, IBoardItem[]>>(new Map());
 
-    const checkStoreData = (): void => {
+    const checkStoreData = useCallback((): void => {
         if (Number(params.roundOrder) != currentRound) {
             console.log('Раунд в сторе отличается от раунда в ссылке');
             setRound(Number(params.roundOrder));
         }
-    };
+    }, [params.roundOrder, currentRound]);
 
     useEffect(() => {
         checkStoreData();
     }, [checkStoreData]);
-    
 
+    // Мемоизируем загрузку доски
+    const loadBoardData = useCallback(async (signal: AbortSignal) => {
+        if (!user) return;
+        
+        loadCurrentRound(user, signal)
+            .then((data) => {
+                if (data) {
+                    setRoundName(data.roundName);
+                    setCategories(data.categoriesNames);
+                    setBoardRows(data.rows);
+                }
+            })
+            .catch(() => {
+                // TODO: добавить страницу с ошибкой
+            });
+    }, [user, loadCurrentRound]);
+    
     // Подгружаем доску
     useCancellableFetch(async (signal) => {
         abortControllerRef.current = new AbortController();
-        if (user) {
-            loadCurrentRound(user, signal)
-                .then((data) => {
-                    if (data) {
-                        setRoundName(data.roundName);
-                        setCategories(data.categoriesNames);
-                        setBoardRows(data.rows);
-                    }
-                })
-                .catch(() => {
-                    // TODO: добавить страницу с ошибкой
-                });
-        }
-    }, [currentGameSession, currentRound, user, loadCurrentRound]);
+        await loadBoardData(signal);
+    }, [loadBoardData]);
 
     // Подгружаем актуальные данные про текущих игроков
     useCancellableFetch(async (signal) => {
         abortControllerPlayersRef.current = new AbortController();
-        loadPlayers(signal);
-    }, [currentGameSession, loadPlayers]);
+        await loadPlayers(signal);
+    }, [loadPlayers]);
 
     // Подгружаем актуальный счет текущего игрока
     useCancellableFetch(async (signal) => {
         abortControllerScoreRef.current = new AbortController();
         if (user) {
-            loadScore(user, signal);
+            await loadScore(user, signal);
         }
-    }, [user, currentGameSession, loadScore]);
+    }, [user, loadScore]);
 
     // Подгружаем кол-во раундов в игре
     useCancellableFetch(async (signal) => {
         abortControllerRoundsRef.current = new AbortController();
         if (currentSessionNumberOfRounds == undefined) {
             console.log('Мы не знаем сколько раундов будет в игре, подгружаем');
-            loadRounds(signal);
+            await loadRounds(signal);
         }
-    }, [user, currentGameSession, loadRounds]);
+    }, [currentSessionNumberOfRounds, loadRounds]);
+
+    // Мемоизируем отсортированные boardItem
+    const sortedCategoryRows = useMemo(() => {
+        let result = new Map<CategoryName, IBoardItem[]>();
+        categories.forEach((category) => {
+            if (rows.has(category)) {
+                result.set(category, rows.get(category)!.sort((a, b) => a.price - b.price));
+            }
+            
+        });
+        return result;
+    }, [rows, categories]);
+
+     // Мемоизируем строчки таблицы
+    const tableRows = useMemo(() => {
+        return categories.map((category) => {
+            const sortedItems = sortedCategoryRows.get(category) || [];
+            return (
+                <TableRow key={category}>
+                    <TableHeader>{category}</TableHeader>
+                    {sortedItems.map((boardItem) => (
+                        <TableLinkData 
+                            key={boardItem.questionId}
+                            href={`question/${boardItem.questionId}`}
+                            isVisited={boardItem.questionStatus === 'FINISHED'}
+                        >
+                            {boardItem.price}
+                        </TableLinkData>
+                    ))}
+                </TableRow>
+            );
+        });
+    }, [categories, sortedCategoryRows]);
+
+        // Используем useMemo для подсчета завершенных вопросов
+    const allQuestionsFinished = useMemo(() => {
+        if (!rows || rows.size === 0) return false;
+        
+        let totalQuestions = 0;
+        let finishedQuestions = 0;
+        
+        for (const [_, items] of rows) {
+            totalQuestions += items.length;
+            finishedQuestions += items.filter(item => item.questionStatus === 'FINISHED').length;
+        }
+        
+        // Возвращаем true, если все вопросы завершены
+        return totalQuestions > 0 && totalQuestions === finishedQuestions;
+    }, [rows]);
 
     return (<>
             <HeaderFirst>
@@ -86,24 +139,10 @@ function Board() {
             </HeaderFirst>
             <CenteringBlock size="large">
                 <Table>
-                    {categories.map((category) => (
-                        <TableRow key={category}>
-                            <TableHeader>
-                                {category}
-                            </TableHeader>
-                            {rows.get(category)!.sort((a, b) => a.price - b.price).map((boardItem) => (
-                                <TableLinkData key={boardItem.questionId}
-                                    href={`question/${boardItem.questionId}`}
-                                    isVisited={boardItem.questionStatus == 'FINISHED'}
-                                >
-                                    {boardItem.price}
-                                </TableLinkData>
-                            ))}
-                        </TableRow>
-                    ))}
+                    {tableRows}
                 </Table>
             </CenteringBlock>
-            <TableActions currentGameSession={currentGameSession} currentRound={currentRound} roundsCount={currentSessionNumberOfRounds} rows={rows} nextRound={nextRound} />
+            <TableActions currentGameSession={currentGameSession} currentRound={currentRound} roundsCount={currentSessionNumberOfRounds} allQuestionsFinished={allQuestionsFinished} nextRound={nextRound} />
         </>
     );
 };
