@@ -49,7 +49,7 @@ jobs:
       - name: Debug SSH connection
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.NAS_IP }}
+          host: ${{ secrets.NAS_HOST }}
           username: ${{ secrets.NAS_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.NAS_GITHUB_PORT }}
