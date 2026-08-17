@@ -45,33 +45,6 @@ jobs:
             VITE_REACT_APP_TINYBIRD_HOST=${{ secrets.TINYBIRD_HOST }}
             VITE_REACT_APP_TINYBIRD_APPEND_TOKEN=${{ secrets.TINYBIRD_APPEND_TOKEN }}
 
-      - name: Debug SSH and Docker
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.NAS_IP }}
-          username: ${{ secrets.NAS_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.NAS_GITHUB_PORT }}
-          script: |
-            echo "=== User Info ==="
-            whoami
-            id
-            groups
-            
-            echo "=== PATH ==="
-            echo $PATH
-            
-            echo "=== Docker Location ==="
-            which docker || echo "docker not found in PATH"
-            ls -la /usr/bin/docker || echo "docker not found"
-            ls -la /usr/local/bin/docker || echo "docker not found in /usr/local/bin"
-            
-            echo "=== Docker Socket ==="
-            ls -la /var/run/docker.sock
-            
-            echo "=== Test Docker ==="
-            docker --version || echo "docker command failed"
-
       # 5. Деплой на NAS через SSH
       - name: Deploy to Synology NAS
         uses: appleboy/ssh-action@v1.0.3
