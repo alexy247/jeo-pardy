@@ -24,4 +24,8 @@ dist-ssr
 *.sln
 *.sw?
 tsconfig.app.tsbuildinfo
+coverage/
+.vitest/
+
+# Temporal files
 TODO.md
