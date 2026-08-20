@@ -31,6 +31,9 @@ function Question() {
                     if (values[0] && values[1]) {
                         setQuestion(values[1]);
                     }
+                })
+                .catch(() => {
+                    // TODO: добавить страницу с ошибкой
                 });
         }
     });
