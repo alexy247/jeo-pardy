@@ -8,9 +8,9 @@
 }
 
 .center.__small {
-    width: 400px;
+    width: var(--media-content-width-small);
 }
 
 .center.__large {
-    width: 80%;
+    width: var(--media-content-width-large);
 }

@@ -12,6 +12,7 @@ import ListItem from "../components/ui/ul-list/list-item/ListItem";
 import UlList from "../components/ui/ul-list/UlList";
 import ButtonType from "../components/actions/ButtonType";
 import LeaderboardItem from "../components/leaderboard-item/leaderboard-item";
+import ButtonsContainer from "../components/ui/buttons-container/ButtonsContainer";
 
 function Leaderboard() {
     const navigate = useNavigate();
@@ -40,19 +41,24 @@ function Leaderboard() {
     };
 
     return (
-        <CenteringHorizontal>
-            <h1>Победители:</h1>
-            <SlidingBlock>
-                <UlList>
-                    {leaderboard && leaderboard.map((player, index) => (
-                        <ListItem key={player.email}>
-                            <LeaderboardItem index={index} player={player}/>
-                        </ListItem>
-                    ))}
-                </UlList>
-            </SlidingBlock>
-            <ButtonType label="Начать другую игру" type="button" onClick={onButtonClick}/>
-        </CenteringHorizontal>
+        <>
+            <CenteringHorizontal>
+                <h1>Победители:</h1>
+                <SlidingBlock>
+                    <UlList>
+                        {leaderboard && leaderboard.map((player, index) => (
+                            <ListItem key={player.email}>
+                                <LeaderboardItem index={index} player={player}/>
+                            </ListItem>
+                        ))}
+                    </UlList>
+                </SlidingBlock>
+            </CenteringHorizontal>
+            <ButtonsContainer>
+                <ButtonType label="Начать другую игру" type="button" onClick={onButtonClick}/>
+            </ButtonsContainer>
+        </>
+        
     );
 }
 

@@ -1,11 +1,11 @@
 .ul-list {}
 
 .ul-list.__small {
-    font-size: 20px;
+    font-size: var(--font-size-s);
 }
 
 .ul-list.__large {
-    font-size: 50px;
+    font-size: var(--font-size-l);
 }
 .ul-list.__without-padding {
     padding: 0;

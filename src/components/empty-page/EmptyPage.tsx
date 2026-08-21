@@ -1,5 +1,6 @@
 import { Fragment } from "react/jsx-runtime";
 import LinkButton from "../actions/LinkButton";
+import ButtonsContainer from "../ui/buttons-container/ButtonsContainer";
 
 function EmptyPage() {
     return (
@@ -7,7 +8,9 @@ function EmptyPage() {
             <h1>
                 Страница не найдена!
             </h1>
-            <LinkButton to="/" label="Вернуться на главную" />
+            <ButtonsContainer isVerticalAlign>
+                <LinkButton to="/" label="Вернуться на главную" />
+            </ButtonsContainer>
         </Fragment>
     );
 }

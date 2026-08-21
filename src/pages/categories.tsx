@@ -8,6 +8,7 @@ import SlidingBlock from "../components/ui/sliding-block/SlidingBlock";
 import UlList from "../components/ui/ul-list/UlList";
 import ListItem from "../components/ui/ul-list/list-item/ListItem";
 import CenteringHorizontal from "../components/ui/centering-horizontal-block/CenteringHorizontal";
+import ButtonsContainer from "../components/ui/buttons-container/ButtonsContainer";
 
 function Categories() {
     const [currentGameRounds, setCurrentGameRounds] = useState<IRound[]>();
@@ -26,26 +27,30 @@ function Categories() {
     }, [currentGameSession]);
 
     return (
-        <CenteringHorizontal>
-            <h1>Список категорий:</h1>
-            <SlidingBlock>
-                <UlList>
-                    {currentGameRounds && currentGameRounds.map((round) => (
-                        <ListItem key={round.roundName}>
-                            {round.roundName}
-                            <UlList>
-                                {round.categories.map((category) => (
-                                    <ListItem key={category.id}>
-                                        {category.title}
-                                    </ListItem>
-                                ))}
-                            </UlList>
-                        </ListItem>
-                    ))}
-                </UlList>
-            </SlidingBlock>
-            <LinkButton to={`/board/${currentGameSession}/${0}`} label="К таблице"/>
-        </CenteringHorizontal>
+        <>
+            <CenteringHorizontal>
+                <h1>Список категорий:</h1>
+                <SlidingBlock>
+                    <UlList>
+                        {currentGameRounds && currentGameRounds.map((round) => (
+                            <ListItem key={round.roundName}>
+                                {round.roundName}
+                                <UlList>
+                                    {round.categories.map((category) => (
+                                        <ListItem key={category.id}>
+                                            {category.title}
+                                        </ListItem>
+                                    ))}
+                                </UlList>
+                            </ListItem>
+                        ))}
+                    </UlList>
+                </SlidingBlock>
+            </CenteringHorizontal>
+            <ButtonsContainer>
+                <LinkButton to={`/board/${currentGameSession}/${0}`} label="К таблице"/>
+            </ButtonsContainer>
+        </>
     );
 }
 

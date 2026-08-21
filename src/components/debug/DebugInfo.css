@@ -9,7 +9,7 @@
     left: -9999999px;
     visibility: hidden;
     opacity: 0;
-    width: 400px;
+    width: var(--media-content-width-small);
 }
 
 .debug-info.__open {

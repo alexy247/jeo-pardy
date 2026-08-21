@@ -1,0 +1,24 @@
+:root {
+    /* Базовые размеры с clamp для плавной адаптации */
+    --font-size-s: clamp(12px, 20px, 24px);
+    --font-size-m: clamp(16px, 24px, 30px);
+    --font-size-l: clamp(22px, 10vw, 50px);
+    --font-size-xxl: clamp(40px, 100vw, 150px);
+}
+
+/* Дополнительные корректировки для очень маленьких экранов */
+@media (max-width: 480px) {
+    :root {
+        --font-size-s: clamp(10px, 12px, 12px);
+        --font-size-m: clamp(14px, 18px, 18px);
+        --font-size-l: clamp(18px, 10vw, 40px);
+        --font-size-xxl: clamp(28px, 80vw, 100px);
+    }
+}
+
+/* Для больших экранов тоже можно добавить ограничение */
+@media (min-width: 1920px) {
+    :root {
+        --font-size-xxl: clamp(100px, 8vw, 180px);
+    }
+}

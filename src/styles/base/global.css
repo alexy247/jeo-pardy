@@ -1,0 +1,26 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: var(--font-size-s);
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--color-white);
+  background: linear-gradient(90deg, var(--color-dark-blue), var(--color-light-blue));
+  background-size: 400% 400%;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  animation: AnimationBackground 8s ease infinite;
+}
+
+nav {
+  font-size: var(--font-size-m);
+}
+
+@keyframes AnimationBackground {
+  0%{background-position:0% 91%}
+  50%{background-position:100% 10%}
+  100%{background-position:0% 91%}
+}

@@ -3,4 +3,15 @@
     gap: 8px;
     justify-content: center;
     margin-top: 10px;
+
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+@media (min-width: 960px) {
+    .container.__vertical {
+        bottom: calc(50% - 160px);
+    }
 }

@@ -38,23 +38,24 @@ const SearchGame = () => {
     }
     
     return (
-        <CenteringBlock>
-            <h1>Найти игру</h1>
-            <p>Необходимо ввести 6-ти значный код:</p>
-            <form onSubmit={onFormSubmit}>
-                <InputField ref={gameCodeRef} label="Код игры" type="text" autofocus={true} />
-                {stubText && <p>Не нашли игру {stubText} </p>}
-                {!findedGameSession && <ButtonsContainer>
+        <form onSubmit={onFormSubmit}>
+            <CenteringBlock>
+                <h1>Найти игру</h1>
+                <p>Необходимо ввести 6-ти значный код:</p>
+                
+                    <InputField ref={gameCodeRef} label="Код игры" type="text" autofocus={true} />
+                    {stubText && <p>Не нашли игру {stubText} </p>}
+                    {findedGameSession && <p>Игра {stubText} найдена</p>}
+            </CenteringBlock>
+            {!findedGameSession && 
+                <ButtonsContainer isVerticalAlign>
                     <ButtonType label="Поиск" type="submit"/>
                 </ButtonsContainer>}
-            </form>
-            {findedGameSession && <>
-                <p>Игра {stubText} найдена</p>
-                <ButtonsContainer>
+            {findedGameSession && 
+                <ButtonsContainer isVerticalAlign>
                     <LinkButton label="Зайти" to={`/board/${findedGameSession}/${currentRound}/`}/>
-                </ButtonsContainer>
-            </>}
-        </CenteringBlock>
+                </ButtonsContainer>}
+        </form>
     );
 };
 
