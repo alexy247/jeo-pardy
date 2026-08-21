@@ -42,8 +42,8 @@ function Registration() {
     };
 
     return (
-        <CenteringBlock>
-            <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit}>  
+            <CenteringBlock>
                 <h1>Регистрация</h1>
                 <InputField ref={userNameRef}
                             type="text"
@@ -58,12 +58,12 @@ function Registration() {
                             label="Пароль"
                 />
                 {error && <p>{error}</p>}
-                <ButtonsContainer>
-                    <ButtonType label="Сохранить" type="submit"/>
-                    <LinkButton label="Войти" to="/login"/>
-                </ButtonsContainer>
-            </form>
-        </CenteringBlock>
+            </CenteringBlock>
+            <ButtonsContainer isVerticalAlign>
+                <ButtonType label="Сохранить" type="submit"/>
+                <LinkButton label="Войти" to="/login"/>
+            </ButtonsContainer>
+        </form>
     );
 }
 

@@ -1,11 +1,11 @@
 .new-category-form {
-    font-size: 30px;
+    font-size: var(--font-size-m);
 }
 
 .new-category-input {
     background-color: transparent;
     border: none;
-    font-size: inherit;
+    font-size: var(--font-size-m);
     color: var(--color-white);
 }
 

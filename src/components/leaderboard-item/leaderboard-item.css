@@ -1,12 +1,12 @@
 .leaderboard-item {
     display: flex;
-    font-size: 20px;
+    font-size: var(--font-size-s);
     justify-content: space-around;
     align-items: center;
 }
 
 .leaderboard-item_place {
-    font-size: 30px;
+    font-size: var(--font-size-m);
     font-weight: bold; 
 }
 

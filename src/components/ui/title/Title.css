@@ -1,14 +1,14 @@
 .title_first-line {
     text-align: right;
     text-transform: uppercase;
-    font-size: 150px;
-    line-height: 1em;
+    font-size: var(--font-size-xxl);
+    line-height: 0.8;
     color: #EDEDED;
 }
 
 .title_second-line {
     text-align: right;
-    font-size: 50px;
-    line-height: 1em;
+    font-size: var(--font-size-l);
+    line-height: 0.8;
     color: #FFCB05;
 }

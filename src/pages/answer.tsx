@@ -45,7 +45,7 @@ function Answer() {
                         {answer?.answerText}
                     </HeaderSecond>
                     <MediaBlock mediaObject={answer!} />
-                    <CenteringHorizontal>
+                    <CenteringHorizontal isBottom>
                         <LinkButton to={`/board/${params.sessionId}/${params.roundOrder}/`} label={"К доске"} />
                     </CenteringHorizontal>
                 </>

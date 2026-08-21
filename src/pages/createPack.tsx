@@ -34,14 +34,16 @@ const CreatePack = () => {
     };
 
     return (
-        <CenteringBlock>
-            <form onSubmit={onFormSubmit}>
-                <InputField ref={nameRef} label="Название" type="text" autofocus={true} />
-                <ButtonsContainer>
-                    <ButtonType label="Сохранить" type="submit"/>
-                </ButtonsContainer>
-            </form>
-        </CenteringBlock>
+        <form onSubmit={onFormSubmit}>
+            <CenteringBlock>
+                <h1>Создать свой пак</h1>
+                <p>Необходимо придумать название:</p>
+                <InputField ref={nameRef} label="Имя пака" type="text" autofocus={true} />
+            </CenteringBlock>
+            <ButtonsContainer isVerticalAlign>
+                <ButtonType label="Сохранить" type="submit"/>
+            </ButtonsContainer>
+        </form>
     );
 };
 

@@ -16,7 +16,7 @@
 
 .input {
     padding: 4px 8px;
-    font-size: 20px;
+    font-size: var(--font-size-s);
     text-decoration: none;
     background-color: var(--color-dark-blue);
     border: 2px outset var(--color-yellow);

@@ -36,7 +36,7 @@ const CreateCategory = ( { currentPackId, currentRoundId, createCategory, addToM
 
     return (
         <form className="new-category-form" onSubmit={onFormSubmit}>
-            <input ref={categoryRef} className="new-category-input" type="text" placeholder="Добавить категорию" title="Добавить категорию" />
+            <input ref={categoryRef} className="new-category-input" name="Добавить категорию" type="text" placeholder="Добавить категорию" title="Добавить категорию" />
         </form>
     );
 };

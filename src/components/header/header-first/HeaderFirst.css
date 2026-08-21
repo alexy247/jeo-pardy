@@ -1,3 +1,5 @@
 .header-first {
     text-align: center;
+    font-size: var(--font-size-l);
+    margin-bottom: 20px;
 }

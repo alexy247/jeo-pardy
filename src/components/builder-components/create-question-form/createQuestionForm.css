@@ -18,7 +18,7 @@
     border: none;
     color: inherit;
     cursor: pointer;
-    font-size: medium;
+    font-size: var(--font-size-s);
 }
 
 .page-change-button:active, .page-change-button:focus, .page-change-button:hover {

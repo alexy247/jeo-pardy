@@ -9,7 +9,6 @@ import { IAnswer, IQuestion } from "../../data/types";
 import Timer from "../timer/Timer";
 import CenteringHorizontal from "../ui/centering-horizontal-block/CenteringHorizontal";
 import InputField from "../ui/input-field/InputField";
-import ButtonsContainer from "../ui/buttons-container/ButtonsContainer";
 import ButtonType from "../actions/ButtonType";
 import LinkButton from "../actions/LinkButton";
 import { sendLog } from "../../lib/logger";
@@ -123,15 +122,13 @@ function AnswerForm({ question }: IAnswerFormProps) {
 
     return (
         <>
-            <Timer callBack={onTimerEnd} />
-            <CenteringHorizontal>
+            {!firstTimerEnded && <Timer callBack={onTimerEnd} /> }
+            <CenteringHorizontal isBottom>
                 {answerButtonVisible && (<ButtonType label="Ответить" type="button" onClick={onAnswerButtonClick}/>)}
                 {inputVisible &&
                     <form onSubmit={onFormSubmit}>
                         <InputField ref={answerRef} label="Ответ" type="text" autofocus={true} />
-                        <ButtonsContainer>
-                            <ButtonType label="Сохранить" type="submit"/>
-                        </ButtonsContainer>
+                        <ButtonType label="Сохранить" type="submit"/>
                     </form>
                 }
                 {answerEnabled &&

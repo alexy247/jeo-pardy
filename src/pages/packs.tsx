@@ -50,7 +50,7 @@ const Packs = () => {
             <SpaceBetween>
                 <>
                     <h1>Допустимые паки</h1>
-                    {isDevMode && <LinkButton to={'createPack'} label="Создать свой"/>}
+                    {isDevMode && <LinkButton to={'create'} label="Создать свой"/>}
                 </>
             </SpaceBetween>
             <UlList size="small">

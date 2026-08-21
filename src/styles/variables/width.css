@@ -1,0 +1,21 @@
+:root {
+    --media-content-width-small: 400px;
+    --media-content-width-medium: 600px;
+    --media-content-width-large: 80%;
+}
+
+/* Дополнительные корректировки для очень маленьких экранов */
+@media (max-width: 480px) {
+    :root {
+        --media-content-width-small: 300px;
+        --media-content-width-medium: 90%;
+    }
+}
+
+/* Для больших экранов тоже можно добавить ограничение */
+@media (min-width: 1920px) {
+    :root {
+        --media-content-width-small: 400px;
+        --media-content-width-medium: 50%;
+    }
+}

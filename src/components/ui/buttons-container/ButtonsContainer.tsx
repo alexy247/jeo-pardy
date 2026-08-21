@@ -1,8 +1,13 @@
 import './ButtonsContainer.css';
 
-function ButtonsContainer({ children }: any) {
+interface IButtonsContainerProps {
+    children: React.ReactNode;
+    isVerticalAlign?: boolean;
+}
+
+function ButtonsContainer({ children, isVerticalAlign = false }: IButtonsContainerProps) {
     return (
-        <div className='container'>
+        <div className={`container ${isVerticalAlign ? '__vertical' : ''}`}>
             {children}
         </div>
     );
